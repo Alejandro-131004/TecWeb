@@ -43,6 +43,34 @@
             <div class="cell" id="cell-22"></div>
             <div class="cell" id="cell-23"></div>
         </div>
+
+        <!-- Menu de opções -->
+        <div class="menu">
+            <button id="restartBtn">Restart game</button>
+            <button id="toggleInfoBtn">Toggle move infos</button>
+            <button id="recommendMoveBtn">Recommend move</button>
+            <button id="undoMoveBtn">Undo last move</button>
+
+            <div class="options">
+                <h3>Options</h3>
+                <div class="option-group">
+                    <label for="aiPlayerA">AI for Player A:</label>
+                    <select id="aiPlayerA">
+                        <option value="none">None</option>
+                        <option value="computer">Computer</option>
+                        <option value="minimax">Minimax</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label for="aiPlayerB">AI for Player B:</label>
+                    <select id="aiPlayerB">
+                        <option value="none">None</option>
+                        <option value="computer">Computer</option>
+                        <option value="minimax">Minimax</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
