@@ -1,103 +1,138 @@
-let currentPlayer = 'red'; // Player 1 (red) starts
+let currentPlayer = 'red'; // Jogador 1 (red) começa
+let phase = 1; // Fase 1: Colocando peças
+let selectedPiece = null; // Armazena a peça selecionada para mover
+let piecesPlaced = 0; // Contador de peças colocadas
+const maxPieces = 9; // Número máximo de peças por jogador
+let board = []; // Representação do tabuleiro
+let numSquares = 3; // Valor inicial para quadrados
+
 const status = document.getElementById('status');
-let phase = 1; // Phase 1: Placing pieces
-let selectedPiece = null; // For storing the selected piece to move
-let piecesPlaced = 0; // Count of placed pieces
-const maxPieces = 9; // Each player has 9 pieces
-let board = Array(24).fill(null); // Board representation (24 valid positions)
+const boardElement = document.getElementById('board');
 
-// Mapping valid cells (simulating valid_positions from Python)
-const validPositions = Array.from({ length: 24 }, (_, i) => i);
+function startGame() {
+    numSquares = parseInt(document.getElementById('numSquares').value);
 
-// Add events to valid cells
-document.querySelectorAll('.cell').forEach((cell, index) => {
-    if (validPositions.includes(index)) {
-        cell.addEventListener('click', () => {
-            if (phase === 1 && !cell.innerHTML) { // Placing phase
-                placePiece(cell, index);
-            } else if (phase === 2) { // Moving phase
-                if (!selectedPiece && cell.firstChild && cell.firstChild.classList.contains(currentPlayer)) {
-                    selectPieceToMove(cell);
-                } else if (selectedPiece && !cell.innerHTML) {
-                    movePiece(cell, index);
-                }
-            }
-        });
+    // Verifica se o número de quadrados é menor ou igual a 2
+    if (numSquares <= 2) {
+        status.textContent = "Invalid number. Please choose a number greater than 2.";
+        return; // Impede a continuação do jogo
     }
-});
 
-// Toggle between players
-function togglePlayer() {
-    currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
-    status.textContent = `Turn of Player ${currentPlayer === 'red' ? '1 (Red)' : '2 (Blue)'}`;
+    resetBoard();
+    generateBoard(numSquares);
+    phase = 1; // Voltar à fase 1
+    piecesPlaced = 0;
+    currentPlayer = 'red'; // Reset para jogador 1
+    status.textContent = `Red's turn`;
 }
 
-// Place piece in phase 1
+// Iniciar o jogo com base no número de quadrados
+document.getElementById('startBtn').addEventListener('click', startGame);
+
+// Gerar tabuleiro com base no número de quadrados
+function generateBoard(numSquares) {
+    boardElement.innerHTML = ''; // Limpa o tabuleiro anterior
+    board = Array(numSquares * numSquares * 2).fill(null); // Ajustar o tamanho do array
+
+    // Gerar quadrados concêntricos
+    for (let i = 0; i < numSquares; i++) {
+        const square = document.createElement('div');
+        square.classList.add('square');
+        square.style.top = `${i * 50}px`;
+        square.style.left = `${i * 50}px`;
+        square.style.width = `${400 - i * 100}px`;
+        square.style.height = `${400 - i * 100}px`;
+        boardElement.appendChild(square);
+    }
+
+    // Adicionar as células válidas
+    let validPositions = generateValidPositions(numSquares);
+    validPositions.forEach((pos, index) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.style.top = `${pos.top}px`;
+        cell.style.left = `${pos.left}px`;
+        cell.id = `cell-${index}`;
+        cell.addEventListener('click', () => handleCellClick(cell, index));
+        boardElement.appendChild(cell);
+    });
+}
+
+// Gerar posições válidas para células em torno dos quadrados concêntricos
+function generateValidPositions(numSquares) {
+    const positions = [];
+    const boardSize = 400; // Tamanho total do tabuleiro
+    const gap = (boardSize - 30) / (numSquares - 1); // Ajustar o espaçamento dinamicamente
+
+    // Gerar posições
+    for (let i = 0; i < numSquares; i++) {
+        positions.push({ top: i * gap, left: 0 }); // Esquerda
+        positions.push({ top: i * gap, left: boardSize / 2 - 15 }); // Centro
+        positions.push({ top: i * gap, left: boardSize - 30 }); // Direita
+    }
+    return positions;
+}
+
+// Lidar com o clique nas células
+function handleCellClick(cell, index) {
+    if (phase === 1 && !cell.innerHTML) { // Colocar peça
+        placePiece(cell, index);
+    } else if (phase === 2) { // Mover peça
+        if (!selectedPiece && cell.firstChild && cell.firstChild.classList.contains(currentPlayer)) {
+            selectPieceToMove(cell);
+        } else if (selectedPiece && !cell.innerHTML) {
+            movePiece(cell, index);
+        }
+    }
+}
+
+// Colocar a peça na fase 1
 function placePiece(cell, index) {
     const piece = document.createElement('div');
     piece.classList.add('piece', currentPlayer);
     cell.appendChild(piece);
-    board[index] = currentPlayer; // Update the board state
+    board[index] = currentPlayer; // Atualizar o estado do tabuleiro
     piecesPlaced++;
     checkPhaseTransition();
     togglePlayer();
 }
 
-// Check if all pieces have been placed to start phase 2
+// Verificar se todas as peças foram colocadas para iniciar a fase 2
 function checkPhaseTransition() {
-    if (piecesPlaced === maxPieces * 2) { // Total pieces placed (9 for each player)
+    if (piecesPlaced === maxPieces * 2) { // Total de peças colocadas
         phase = 2;
-        status.textContent = `Phase 2: Move pieces - Turn of Player 1 (Red)`;
+        status.textContent = `Phase 2: Move pieces - Red's turn`;
     }
 }
 
-// Select piece to move
+// Alternar entre os jogadores
+function togglePlayer() {
+    currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
+    status.textContent = currentPlayer === 'red' ? "Red's turn" : "Blue's turn";
+}
+
+// Selecionar peça para mover
 function selectPieceToMove(cell) {
     cell.firstChild.classList.add('movable');
     selectedPiece = cell;
 }
 
-// Move the selected piece
+// Mover a peça selecionada
 function movePiece(targetCell, index) {
     if (selectedPiece) {
         targetCell.appendChild(selectedPiece.firstChild);
-        board[index] = currentPlayer; // Update the board with the new position
+        board[index] = currentPlayer; // Atualizar a nova posição
         const previousIndex = Array.from(selectedPiece.parentElement.children).indexOf(selectedPiece);
-        board[previousIndex] = null; // Clear the previous position
+        board[previousIndex] = null; // Limpar a posição anterior
         selectedPiece = null;
         document.querySelectorAll('.movable').forEach(piece => piece.classList.remove('movable'));
         togglePlayer();
     }
 }
 
-// Restart the game
-document.getElementById('restartBtn').addEventListener('click', restartGame);
+// Reiniciar o jogo
+document.getElementById('restartBtn').addEventListener('click', resetBoard);
 
-function restartGame() {
-    // Reset variables
-    currentPlayer = 'red'; // Player 1 (red) starts
-    phase = 1; // Phase 1: Placing pieces
-    selectedPiece = null; // Reset selected piece
-    piecesPlaced = 0; // Reset pieces placed
-    board = Array(24).fill(null); // Reset the board
-
-    // Clear the board visually
-    document.querySelectorAll('.cell').forEach(cell => {
-        cell.innerHTML = ''; // Remove all pieces from the cells
-    });
-
-    // Reset the status message
-    status.textContent = 'Turn of Player 1 (Red)';
-}
-
-// Check if the game is finished (full board)
-function isFinished() {
-    return board.every(cell => cell !== null);
-}
-
-// Check if all pieces have been moved
-function checkGameOver() {
-    if (isFinished()) {
-        status.textContent = `Game Over! ${currentPlayer === 'red' ? 'Player 1 (Red)' : 'Player 2 (Blue)'} wins!`;
-    }
+function resetBoard() {
+    boardElement.innerHTML = '';
 }

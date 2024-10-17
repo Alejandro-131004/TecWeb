@@ -3,74 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo de Trilha</title>
+    <title>Jogo de Trilha Dinâmico</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="status-container">
+        <div id="status">Red begins</div>
+    </div>
+
+    <div class="menu-container">
+        <label for="numSquares">Number of squares:</label>
+        <input type="number" id="numSquares" value="3" min="3" max="6">
+        <button id="startBtn">Start Game</button>
+    </div>
+
     <div class="board-container">
-        <div id="status">Vez do Jogador 1 (Vermelho)</div>
-        <div class="board">
-            <!-- Desenhar quadrados concêntricos -->
-            <div class="square"></div>
-            <div class="square"></div>
-            <div class="square"></div>
+        <div class="board" id="board"></div>
+    </div>
 
-            <!-- Células (posições no tabuleiro) -->
-            <div class="cell" id="cell-0"></div>
-            <div class="cell" id="cell-1"></div>
-            <div class="cell" id="cell-2"></div>
-            <div class="cell" id="cell-3"></div>
-            <div class="cell" id="cell-4"></div>
-            <div class="cell" id="cell-5"></div>
-            <div class="cell" id="cell-6"></div>
-            <div class="cell" id="cell-7"></div>
-
-            <div class="cell" id="cell-8"></div>
-            <div class="cell" id="cell-9"></div>
-            <div class="cell" id="cell-10"></div>
-            <div class="cell" id="cell-11"></div>
-            <div class="cell" id="cell-12"></div>
-            <div class="cell" id="cell-13"></div>
-            <div class="cell" id="cell-14"></div>
-            <div class="cell" id="cell-15"></div>
-
-            <div class="cell" id="cell-16"></div>
-            <div class="cell" id="cell-17"></div>
-            <div class="cell" id="cell-18"></div>
-            <div class="cell" id="cell-19"></div>
-            <div class="cell" id="cell-20"></div>
-            <div class="cell" id="cell-21"></div>
-            <div class="cell" id="cell-22"></div>
-            <div class="cell" id="cell-23"></div>
-        </div>
-
-        <!-- Menu de opções -->
-        <div class="menu">
-            <button id="restartBtn">Restart game</button> <!-- Botão adicionado aqui -->
-            <button id="toggleInfoBtn">Toggle move infos</button>
-            <button id="recommendMoveBtn">Recommend move</button>
-            <button id="undoMoveBtn">Undo last move</button>
-
-            <div class="options">
-                <h3>Options</h3>
-                <div class="option-group">
-                    <label for="aiPlayerA">AI for Player A:</label>
-                    <select id="aiPlayerA">
-                        <option value="none">None</option>
-                        <option value="computer">Computer</option>
-                        <option value="minimax">Minimax</option>
-                    </select>
-                </div>
-                <div class="option-group">
-                    <label for="aiPlayerB">AI for Player B:</label>
-                    <select id="aiPlayerB">
-                        <option value="none">None</option>
-                        <option value="computer">Computer</option>
-                        <option value="minimax">Minimax</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+    <div class="menu-container">
+        <button id="restartBtn">Restart game</button>
+        <button id="toggleInfoBtn">Toggle move infos</button>
+        <button id="recommendMoveBtn">Recommend move</button>
+        <button id="undoMoveBtn">Undo last move</button>
     </div>
 
     <script src="sera2.js"></script>
