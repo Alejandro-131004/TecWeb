@@ -3,12 +3,31 @@ const status = document.getElementById('status');
 let phase = 1; // Phase 1: Placing pieces
 let selectedPiece = null; // For storing the selected piece to move
 let piecesPlaced = 0; // Count of placed pieces
-const maxPieces = 9; // Each player has 9 pieces
-let board = Array(24).fill(null); // Board representation (24 valid positions)
+let n = 3; // Default value for number of squares (n)
+let Pieces = 9; // Default value for number of pieces of each player
+let board = []; 
 
-// Mapping valid cells (simulating valid_positions from Python)
-const validPositions = Array.from({ length: 24 }, (_, i) => i);
+function createBoard() {
+    const boardElement = document.getElementById('board');
+    boardElement.innerHTML = ''; // Clear any existing cells
 
+    const totalPositions = 8 * n;
+    Pieces = 3 * n; // Adjust max pieces for each player
+    piecesPlaced = 0;
+    board = Array(totalPositions).fill(null);
+    validPositions = Array.from({ length: totalPositions }, (_, i) => i);
+
+    for (let i = 0; i < totalPositions; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        boardElement.appendChild(cell);
+        cell.addEventListener('click', () => handleCellClick(cell, i));
+    }
+
+    status.textContent = 'Turn of Player 1 (Red)';
+}
+
+// Add events to valid cells
 // Add events to valid cells
 document.querySelectorAll('.cell').forEach((cell, index) => {
     if (validPositions.includes(index)) {
@@ -32,6 +51,8 @@ function togglePlayer() {
     status.textContent = `Turn of Player ${currentPlayer === 'red' ? '1 (Red)' : '2 (Blue)'}`;
 }
 
+// PHASE 1
+
 // Place piece in phase 1
 function placePiece(cell, index) {
     const piece = document.createElement('div');
@@ -45,11 +66,15 @@ function placePiece(cell, index) {
 
 // Check if all pieces have been placed to start phase 2
 function checkPhaseTransition() {
-    if (piecesPlaced === maxPieces * 2) { // Total pieces placed (9 for each player)
+    if (piecesPlaced === Pieces) { // Total pieces placed (9 for each player)
         phase = 2;
         status.textContent = `Phase 2: Move pieces - Turn of Player 1 (Red)`;
     }
 }
+
+
+
+// PHASE 2
 
 // Select piece to move
 function selectPieceToMove(cell) {
@@ -57,47 +82,42 @@ function selectPieceToMove(cell) {
     selectedPiece = cell;
 }
 
-// Move the selected piece
+// Move piece logic
 function movePiece(targetCell, index) {
     if (selectedPiece) {
         targetCell.appendChild(selectedPiece.firstChild);
-        board[index] = currentPlayer; // Update the board with the new position
         const previousIndex = Array.from(selectedPiece.parentElement.children).indexOf(selectedPiece);
-        board[previousIndex] = null; // Clear the previous position
+        board[previousIndex] = null;
+        board[index] = currentPlayer;
         selectedPiece = null;
         document.querySelectorAll('.movable').forEach(piece => piece.classList.remove('movable'));
         togglePlayer();
     }
 }
 
-// Restart the game
+// Restart game logic
+function restartGame() {
+    currentPlayer = 'red';
+    phase = 1;
+    selectedPiece = null;
+    createBoard();
+}
+
+// Start game with chosen number of squares
+document.getElementById('startBtn').addEventListener('click', () => {
+    const boardSizeInput = document.getElementById('boardSize');
+    n = parseInt(boardSizeInput.value);
+    createBoard();
+});
+
+// Restart button logic
 document.getElementById('restartBtn').addEventListener('click', restartGame);
 
-function restartGame() {
-    // Reset variables
-    currentPlayer = 'red'; // Player 1 (red) starts
-    phase = 1; // Phase 1: Placing pieces
-    selectedPiece = null; // Reset selected piece
-    piecesPlaced = 0; // Reset pieces placed
-    board = Array(24).fill(null); // Reset the board
+// Initial board setup
+createBoard();
 
-    // Clear the board visually
-    document.querySelectorAll('.cell').forEach(cell => {
-        cell.innerHTML = ''; // Remove all pieces from the cells
-    });
 
-    // Reset the status message
-    status.textContent = 'Turn of Player 1 (Red)';
-}
 
-// Check if the game is finished (full board)
-function isFinished() {
-    return board.every(cell => cell !== null);
-}
 
-// Check if all pieces have been moved
-function checkGameOver() {
-    if (isFinished()) {
-        status.textContent = `Game Over! ${currentPlayer === 'red' ? 'Player 1 (Red)' : 'Player 2 (Blue)'} wins!`;
-    }
-}
+
+
