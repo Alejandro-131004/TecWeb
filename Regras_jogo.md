@@ -77,13 +77,13 @@
 
 - Uma peça só pode ser movida para uma casa vazia
 
-- Casas têm de estar ligadas por uma linha vertical ou horizontal
+- Casas têm de estar ligadas por uma linha vertical ou horizontal ou seja sao adjacentes 
 
 ----------------------------------------------------------------
 
 **Capturar as Peças**
 
-- Criando um moinho pode capturar peça do adversário
+- Criando um moinho pode capturar peça do adversário. ou seja quando faz 3 casas seguidas consecutivas captura uma peca do adversário. 
 
 - Neste caso, remove uma peça do adversário à sua escolha
 
