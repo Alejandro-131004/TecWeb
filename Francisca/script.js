@@ -9,7 +9,6 @@ let board = [];
 const status = document.getElementById('status');
 const boardElement = document.getElementById('board');
 
-
 function startGame() {
     const numSquares = parseInt(document.getElementById('numSquares').value);
 
@@ -20,6 +19,10 @@ function startGame() {
 
     resetBoard();
     generateBoard(numSquares);
+
+    // Inicializa o board como matriz vazia com base no número de círculos
+    board = Array.from({ length: numSquares }, () => Array(8).fill(null));
+
     phase = 1;
     piecesPlaced = 0;
     redPiecesPlaced = 0; // Reiniciar contagem de peças para Red
@@ -32,8 +35,15 @@ function startGame() {
 
 
 function generateBoard(numSquares) {
-    boardElement.innerHTML = ''; // Limpar tabuleiro anterior
+    board = [];  // Inicializa o tabuleiro como uma matriz vazia
 
+    for (let square = 0; square < numSquares; square++) {
+        const positions = new Array(8).fill(null); // Cria um círculo com 8 posições vazias
+        board.push(positions);  // Adiciona o círculo ao tabuleiro
+    }
+
+    // Também cria visualmente o tabuleiro na interface
+    boardElement.innerHTML = ''; // Limpar tabuleiro anterior
     const boardCenter = 400; // Centro do tabuleiro (800px / 2)
     const maxRadius = 300; // Raio máximo ajustado para o quadrado maior
 
@@ -45,9 +55,10 @@ function generateBoard(numSquares) {
             createCircle(boardElement, boardCenter + pos.x, boardCenter + pos.y, `cell-${square}-${index}`);
         });
 
+        // Desenhar linhas horizontais e verticais no tabuleiro
         if (square !== numSquares - 1) {
-            createLine(boardElement, boardCenter - radius, boardCenter, boardCenter + radius, boardCenter); // Linha horizontal no centro
-            createLine(boardElement, boardCenter, boardCenter - radius, boardCenter, boardCenter + radius); // Linha vertical no centro
+            createLine(boardElement, boardCenter - radius, boardCenter, boardCenter + radius, boardCenter); // Linha horizontal
+            createLine(boardElement, boardCenter, boardCenter - radius, boardCenter, boardCenter + radius); // Linha vertical
         }
 
         // Desenhar linhas entre os círculos
@@ -101,9 +112,16 @@ function handleCellClick(cell) {
         placePiece(cell);
     }
 }
-
 function placePiece(cell) {
-    // Verifica se o jogador atual está dentro do limite de peças
+    const [square, index] = cell.id.split('-').slice(1).map(Number); // Extrai a posição da célula a partir do id
+
+    // Verifica se a posição já está ocupada
+    if (board[square][index] !== null) {
+        status.textContent = "Essa posição já está ocupada!";
+        return;
+    }
+
+    // Verifica se o jogador atual ainda pode colocar mais peças
     if ((currentPlayer === 'red' && redPiecesPlaced < maxPieces) ||
         (currentPlayer === 'blue' && bluePiecesPlaced < maxPieces)) {
 
@@ -111,51 +129,46 @@ function placePiece(cell) {
         if (currentPlayer === 'red') {
             cell.style.backgroundColor = 'red';
             redPiecesPlaced++; // Incrementa o número de peças para Red
+            board[square][index] = 'red'; // Atualiza a matriz do tabuleiro
         } else if (currentPlayer === 'blue') {
             cell.style.backgroundColor = 'blue';
             bluePiecesPlaced++; // Incrementa o número de peças para Blue
+            board[square][index] = 'blue'; // Atualiza a matriz do tabuleiro
         }
-        togglePlayer();
 
-        const piece = document.createElement('div');
-        piece.classList.add('piece', currentPlayer);
-        cell.appendChild(piece);
-        piecesPlaced++;
 
         // Verifica se uma mill foi formada
-        if (checkForMill(cell)) {
-            status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do oponente.`;
-            removeOpponentPiece(); // Alternância de jogador ocorrerá dentro de removeOpponentPiece após remoção
-        } else {
-            // Verifica se todas as peças foram colocadas
-            if (redPiecesPlaced === maxPieces && bluePiecesPlaced === maxPieces) {
-                phase = 2;
-                status.textContent = "Fase 2: Mover peças - Vez de Red";
-            } else {
-                togglePlayer(); // Continua alternando os jogadores enquanto as peças não foram todas colocadas
-            }
-        }
+        const numCircles = board.length; // número de círculos
+        if (checkForMill(square, index, board, currentPlayer, numCircles)) {
+            status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
 
-        // Atualiza o status com a contagem de peças colocadas
-        updatePieceCount();
+            // Permite que o jogador atual remova uma peça do adversário
+            removeOpponentPiece();
+
+        } else {
+            // Se não formou uma mill, alterna o jogador imediatamente
+            togglePlayer();
+        }
     } else {
-        // Mensagem de erro caso o jogador tente colocar mais peças do que o permitido
-        status.textContent = `${currentPlayer} já colocou todas as peças.`;
+        status.textContent = `${currentPlayer} já colocou todas as suas peças.`;
     }
 }
 
+function togglePlayer() {
+    currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
+    status.textContent = `Vez de ${currentPlayer}.`;
+    updatePieceCount();
+}
+
+
 function updatePieceCount() {
     status.textContent = `
-        Vez de ${currentPlayer}. 
+        Vez de ${currentPlayer}.
         Red: ${redPiecesPlaced}/${maxPieces} peças colocadas. 
         Blue: ${bluePiecesPlaced}/${maxPieces} peças colocadas.
     `;
 }
 
-function togglePlayer() {
-    currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
-    updatePieceCount(); // Atualiza o status sempre que alterna o jogador
-}
 
 function getNumberOfPieces(numSquares) {
     return 3 * numSquares * 2; // 3*n peças para cada jogador, multiplicado por 2 para dois jogadores
@@ -166,40 +179,66 @@ function resetBoard() {
     board = [];
 }
 
-function checkForMill(cell) {
-    const [square, index] = cell.id.split('-').slice(1).map(Number);
-    const millLines = getMillLines(square, index);
-    
-    // Verificar se alguma linha de três peças é uma mill
+function checkForMill(square, index, board, currentPlayer, numCircles) {
+    // Obter as linhas possíveis de mills para o círculo e índice dados
+    const millLines = getMillLines(square, index, numCircles);
+
+    // Verificar se alguma das linhas é um mill completo
     for (let line of millLines) {
-        if (line.every(c => board[c.square][c.index] === currentPlayer)) {
-            return true;
+        let isMill = line.every(cell => board[cell.square][cell.index] === currentPlayer);
+        if (isMill) {
+            return true; // Mill encontrado
         }
     }
-    return false;
+
+    return false; // Nenhum mill encontrado
 }
 
-function getMillLines(square, index) {
-    const numPositions = 8; // O número de posições em cada círculo
+
+
+function getMillLines(square, index, numCircles) { //dei bue tryhard desculpem 
     const millLines = [];
 
-    // 1. Adicionar linha horizontal (dentro do mesmo círculo)
-    const horizontalLine = [];
-    for (let i = 0; i < numPositions; i++) {
-        horizontalLine.push({ square, index: i });
-    }
-    millLines.push(horizontalLine);
+    // 1. Linhas horizontais no mesmo círculo
+    if (index === 0 || index === 2 || index === 4 || index === 6) {
+        // Linha horizontal no círculo
+        if (index === 0 || index === 2) {
+            millLines.push([{ square, index: 0 }, { square, index: 1 }, { square, index: 2 }]);
+        }
+        if (index === 4 || index === 6) {
+            millLines.push([{ square, index: 4 }, { square, index: 5 }, { square, index: 6 }]);
+        }
 
-    // 2. Adicionar linha vertical (mesmo index, mas em círculos diferentes)
-    const verticalLine = [];
-    for (let s = 0; s <= 2; s++) {  // Assume que existem 3 círculos (square 0, 1, 2)
-        verticalLine.push({ square: s, index });
+        // Linhas verticais dentro do mesmo círculo
+        if (index === 0 || index === 4) {
+            millLines.push([{ square, index: 0 }, { square, index: 3 }, { square, index: 4 }]);
+        }
+        if (index === 2 || index === 6) {
+            millLines.push([{ square, index: 0 }, { square, index: 7 }, { square, index: 6 }]);
+        }
+
+    } else if (index === 1 || index === 3 || index === 5 || index === 7) {
+        // 2. Linhas verticais (entre círculos)
+        const verticalLine = [];
+        for (let s = 0; s < numCircles; s++) {
+            verticalLine.push({ square: s, index });
+        }
+        millLines.push(verticalLine);
+
+        // Linhas horizontais no mesmo círculo
+        if (index === 1 || index === 2) {
+            millLines.push([{ square, index: 0 }, { square, index: 1 }, { square, index: 2 }]);
+        }
+        if (index === 4 || index === 5) {
+            millLines.push([{ square, index: 4 }, { square, index: 5 }, { square, index: 6 }]);
+        }
+        if (index === 6 || index === 7) {
+            millLines.push([{ square, index: 0 }, { square, index: 7 }, { square, index: 6 }]);
+        }
     }
-    millLines.push(verticalLine);
 
     return millLines;
 }
-
 
 function removeOpponentPiece() {
     boardElement.addEventListener('click', function removePiece(event) {
@@ -211,11 +250,11 @@ function removeOpponentPiece() {
             status.textContent = `${currentPlayer} removeu uma peça!`;
             boardElement.removeEventListener('click', removePiece);
             
-            // Após remover a peça, alterna para o próximo jogador
-            togglePlayer();
+            togglePlayer(); // Agora troca o jogador imediatamente após remover a peça
         }
     });
 }
+
 
 function opponentPlayer() {
     return currentPlayer === 'red' ? 'blue' : 'red';
