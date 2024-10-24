@@ -6,33 +6,33 @@
     <title>Jogo do Moinho</title>
     <style>
         #board {
-            position: relative;
-            width: 800px; 
-            height: 750px;
-            margin: 30px auto;
-            background-color: rgb(239, 221, 170);
-        }
+    position: relative;
+    width: 800px; /* Aumentado para 800x800 */
+    height: 750px;
+    margin: 30px auto;
+    background-color: rgb(239, 221, 170);
+}
 
-        .cell {
-            position: absolute;
-            width: 30px; 
-            height: 30px;
-            border-radius: 50%;
-            background-color: rgb(3, 5, 46); 
-            border: 2px solid black; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            z-index: 2; /* Círculos acima das linhas */
-        }
+.cell {
+    position: absolute;
+    width: 30px; /* Círculos menores */
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgb(3, 5, 46); /* Não transparente */
+    border: 2px solid black; /* Borda preta ao redor dos círculos */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 2; /* Círculos na frente */
+}
 
-        .line {
-            position: absolute;
-            background-color: black;
-            height: 4px;
-            z-index: 1; /* Linhas abaixo dos círculos */
-        }
+.line {
+    position: absolute;
+    background-color: black;
+    height: 4px;
+    z-index: 1; /* Linhas atrás */
+}
     </style>
 </head>
 <body>
@@ -53,13 +53,10 @@
 
         function generateBoard(numSquares) {
             const boardElement = document.getElementById('board');
-            boardElement.innerHTML = ''; 
+            boardElement.innerHTML = ''; // Limpa o tabuleiro anterior
 
-            const boardSize = 2 * numSquares + 1;
-            const boardCenter = 400; 
-            const maxRadius = 300; 
-
-            const allPositions = [];
+            const boardCenter = 400; // Ponto central do tabuleiro (800px / 2)
+            const maxRadius = 300; // Raio máximo ajustado para o quadrado maior
 
             for (let square = 0; square < numSquares; square++) {
                 const radius = maxRadius - (square * (maxRadius / numSquares));
@@ -69,46 +66,41 @@
                     createCircle(boardElement, boardCenter + pos.x, boardCenter + pos.y, `cell-${square}-${index}`);
                 });
 
-                allPositions.push(positions);
+                // Para todos os quadrados exceto o menor (central), desenha as linhas horizontais e verticais
+                if (square !== numSquares - 1) {
+                    createLine(boardElement, boardCenter - radius, boardCenter, boardCenter + radius, boardCenter); // Linha horizontal no middle
+                    createLine(boardElement, boardCenter, boardCenter - radius, boardCenter, boardCenter + radius); // Linha vertical no middle
+                }
 
+                // Desenhar as linhas entre os círculos
                 for (let i = 0; i < positions.length; i++) {
-                    const nextPos = positions[(i + 1) % positions.length]; 
-                    createLine(boardElement, boardCenter + positions[i].x, boardCenter + positions[i].y, boardCenter + nextPos.x, boardCenter + nextPos.y);
+                    const nextPos = positions[(i + 1) % positions.length];
+                    createLine(boardElement, boardCenter + positions[i].x + 2, boardCenter + positions[i].y + 2, boardCenter + nextPos.x + 2, boardCenter + nextPos.y + 2);
                 }
             }
-
-            // Adiciona as linhas horizontais e verticais
-            for (let square = 0; square < numSquares; square++) {
-                const positions = allPositions[square];
-
-                // Linhas verticais (ligando top-bottom)
-                createLine(boardElement, boardCenter + positions[0].x, boardCenter + positions[0].y, boardCenter + positions[5].x, boardCenter + positions[5].y);
-                createLine(boardElement, boardCenter + positions[2].x, boardCenter + positions[2].y, boardCenter + positions[7].x, boardCenter + positions[7].y);
-
-                // Linhas horizontais (ligando left-right)
-                createLine(boardElement, boardCenter + positions[1].x, boardCenter + positions[1].y, boardCenter + positions[4].x, boardCenter + positions[4].y);
-                createLine(boardElement, boardCenter + positions[3].x, boardCenter + positions[3].y, boardCenter + positions[6].x, boardCenter + positions[6].y);
-            }
         }
+
+
 
         function calculatePositions(radius) {
             return [
                 { x: -radius, y: -radius },
-                { x: 0, y: -radius },
+                { x: 0-4, y: -radius }, // Middle point top
                 { x: radius, y: -radius },
-                { x: radius, y: 0 },
+                { x: radius, y: 0 }, // Middle point right
                 { x: radius, y: radius },
-                { x: 0, y: radius },
+                { x: 0-4, y: radius }, // Middle point bottom
                 { x: -radius, y: radius },
-                { x: -radius, y: 0 }
+                { x: -radius, y: 0 }  // Middle point left
             ];
         }
+
 
         function createCircle(boardElement, x, y, id) {
             const cell = document.createElement('div');
             cell.classList.add('cell');
-            cell.style.left = `${x - 15}px`; 
-            cell.style.top = `${y - 15}px`; 
+            cell.style.left = `${x - 12}px`; /* Ajuste para círculos menores */
+            cell.style.top = `${y - 12}px`; /* Ajuste para círculos menores */
             cell.id = id;
             cell.addEventListener('click', () => handleCellClick(cell));
             boardElement.appendChild(cell);
@@ -121,8 +113,8 @@
 
             line.classList.add('line');
             line.style.width = `${length}px`;
-            line.style.left = `${x1}px`;
-            line.style.top = `${y1}px`;
+            line.style.left = `${x1+2}px`;
+            line.style.top = `${y1+2}px`;
             line.style.transformOrigin = '0 0';  
             line.style.transform = `rotate(${angle}deg)`;
             boardElement.appendChild(line);
@@ -132,6 +124,8 @@
             console.log(`Célula clicada: ${cell.id}`);
             cell.style.backgroundColor = 'lightblue'; 
         }
+
+        
     </script>
 
 </body>

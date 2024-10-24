@@ -1,0 +1,27 @@
+#board {
+    position: relative;
+    width: 800px; /* Tamanho do tabuleiro */
+    height: 750px;
+    margin: 30px auto;
+    background-color: rgb(239, 221, 170);
+}
+
+.cell {
+    position: absolute;
+    width: 30px; /* Círculos menores */
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgb(3, 5, 46); /* Não transparente */
+    border: 2px solid black; /* Borda preta ao redor dos círculos */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 2; /* Círculos na frente */
+}
+
+.line {
+    position: absolute;
+    background-color: black;
+    height: 4px;
+}
