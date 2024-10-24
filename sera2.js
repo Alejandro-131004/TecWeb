@@ -17,6 +17,7 @@ function startGame() {
         status.textContent = "Invalid number. Please choose a number greater than 2.";
         return; // Impede a continuação do jogo
     }
+    alert ("Red turns first followed by blue") //alerta antes de comecar o jogo
 
     resetBoard();
     generateBoard(numSquares);

@@ -1,5 +1,3 @@
-
-
 var playerOneCode = 1;
 var playerTwoCode = 2;
 var redBlocks = 0;
@@ -22,7 +20,7 @@ var columns = 7;
 var clickSound;
 var positionMatrix = new Array(7);
 var referenceMatrix = new Array(7);
-var canvas = document.getElementById("myCanvas");
+var canvas = document.getElementById("myCanvas"); //yeahhhhh
 var context = canvas.getContext("2d");
 
 
