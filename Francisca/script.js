@@ -33,7 +33,6 @@ function startGame() {
     maxPieces = getNumberOfPieces(numSquares) / 2; // Número máximo de peças por jogador
 }
 
-
 function generateBoard(numSquares) {
     board = [];  // Inicializa o tabuleiro como uma matriz vazia
 
@@ -136,14 +135,13 @@ function placePiece(cell) {
             board[square][index] = 'blue'; // Atualiza a matriz do tabuleiro
         }
 
-
         // Verifica se uma mill foi formada
         const numCircles = board.length; // número de círculos
         if (checkForMill(square, index, board, currentPlayer, numCircles)) {
             status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
 
-            // Permite que o jogador atual remova uma peça do adversário
-            removeOpponentPiece();
+            // Inicia o processo de seleção de peça do adversário
+            startRemoveOpponentPiece(); // Chame a nova função para seleção de peça
 
         } else {
             // Se não formou uma mill, alterna o jogador imediatamente
@@ -154,6 +152,7 @@ function placePiece(cell) {
     }
 }
 
+
 function togglePlayer() {
     currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
     status.textContent = `Vez de ${currentPlayer}.`;
@@ -163,12 +162,11 @@ function togglePlayer() {
 
 function updatePieceCount() {
     status.textContent = `
-        Vez de ${currentPlayer}.
+        Vez de ${currentPlayer}. 
         Red: ${redPiecesPlaced}/${maxPieces} peças colocadas. 
         Blue: ${bluePiecesPlaced}/${maxPieces} peças colocadas.
     `;
 }
-
 
 function getNumberOfPieces(numSquares) {
     return 3 * numSquares * 2; // 3*n peças para cada jogador, multiplicado por 2 para dois jogadores
@@ -240,20 +238,66 @@ function getMillLines(square, index, numCircles) { //dei bue tryhard desculpem
     return millLines;
 }
 
-function removeOpponentPiece() {
-    boardElement.addEventListener('click', function removePiece(event) {
-        const cell = event.target.closest('.cell');
-        const piece = cell.querySelector('.piece');
-        
-        if (piece && piece.classList.contains(opponentPlayer()) && !checkForMill(cell)) {
-            cell.innerHTML = ''; // Remove a peça
-            status.textContent = `${currentPlayer} removeu uma peça!`;
-            boardElement.removeEventListener('click', removePiece);
-            
-            togglePlayer(); // Agora troca o jogador imediatamente após remover a peça
+// Função para iniciar a remoção de peças do adversário
+function startRemoveOpponentPiece() {
+    const opponent = opponentPlayer(); // Obtém o jogador adversário
+    const numCircles = board.length;
+
+    // Coletar todas as peças do adversário
+    const opponentPieces = [];
+    for (let square = 0; square < numCircles; square++) {
+        for (let index = 0; index < board[square].length; index++) {
+            if (board[square][index] === opponent) {
+                opponentPieces.push({ square, index });
+            }
         }
+    }
+
+    // Adicionar evento de clique em cada peça do adversário
+    opponentPieces.forEach(piece => {
+        const cell = document.getElementById(`cell-${piece.square}-${piece.index}`);
+        cell.style.cursor = 'pointer'; // Mudar o cursor para indicar que é clicável
+        cell.addEventListener('click', () => removePiece(piece.square, piece.index));
     });
+
+    status.textContent = `Escolha uma peça de ${opponent} para remover!`;
 }
+
+
+
+
+function removePiece(square, index) {
+    const opponent = opponentPlayer();
+
+    // Verifica se a peça a ser removida pertence ao adversário
+    if (board[square][index] !== opponent) {
+        status.textContent = "Você só pode remover peças do adversário!";
+        return; // Se não for uma peça do adversário, não remove
+    }
+
+    // Verificar se a peça está em uma mill
+    if (checkForMill(square, index, board, opponent, board.length)) {
+        status.textContent = "Não é possível remover uma peça que está em uma mill!";
+        return; // Se a peça está em uma mill, não remove
+    }
+
+    // Remove a peça do tabuleiro (atualiza a matriz para null)
+    board[square][index] = null; // Aqui é onde a célula na matriz é atualizada para null
+
+    // Atualiza a interface do usuário para refletir a remoção da peça
+    const cellToRemove = document.getElementById(`cell-${square}-${index}`);
+    cellToRemove.style.backgroundColor = ''; // Limpa a cor da célula
+    cellToRemove.removeEventListener('click', () => removePiece(square, index)); // Remove o evento de clique
+
+    status.textContent = `${opponent} teve uma peça removida!`;
+
+    // Aqui você pode adicionar qualquer lógica adicional que precise ocorrer após a remoção
+
+    // Alterna o jogador após a remoção
+    //togglePlayer();
+}
+
+
 
 
 function opponentPlayer() {
