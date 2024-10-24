@@ -7,7 +7,7 @@
     <style>
         #board {
             position: relative;
-            width: 800px; /* Aumentado para 800x800 */
+            width: 800px; 
             height: 750px;
             margin: 30px auto;
             background-color: rgb(239, 221, 170);
@@ -15,21 +15,23 @@
 
         .cell {
             position: absolute;
-            width: 30px; /* Círculos menores */
+            width: 30px; 
             height: 30px;
             border-radius: 50%;
-            background-color: rgb(3, 5, 46); /* Não transparente */
-            border: 2px solid black; /* Borda preta ao redor dos círculos */
+            background-color: rgb(3, 5, 46); 
+            border: 2px solid black; 
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
+            z-index: 2; /* Círculos acima das linhas */
         }
 
         .line {
             position: absolute;
             background-color: black;
             height: 4px;
+            z-index: 1; /* Linhas abaixo dos círculos */
         }
     </style>
 </head>
@@ -51,11 +53,11 @@
 
         function generateBoard(numSquares) {
             const boardElement = document.getElementById('board');
-            boardElement.innerHTML = ''; // Limpa o tabuleiro anterior
+            boardElement.innerHTML = ''; 
 
             const boardSize = 2 * numSquares + 1;
-            const boardCenter = 400; // Ponto central do tabuleiro (800px / 2)
-            const maxRadius = 300; // Raio máximo ajustado para o quadrado maior
+            const boardCenter = 400; 
+            const maxRadius = 300; 
 
             const allPositions = [];
 
@@ -73,6 +75,19 @@
                     const nextPos = positions[(i + 1) % positions.length]; 
                     createLine(boardElement, boardCenter + positions[i].x, boardCenter + positions[i].y, boardCenter + nextPos.x, boardCenter + nextPos.y);
                 }
+            }
+
+            // Adiciona as linhas horizontais e verticais
+            for (let square = 0; square < numSquares; square++) {
+                const positions = allPositions[square];
+
+                // Linhas verticais (ligando top-bottom)
+                createLine(boardElement, boardCenter + positions[0].x, boardCenter + positions[0].y, boardCenter + positions[5].x, boardCenter + positions[5].y);
+                createLine(boardElement, boardCenter + positions[2].x, boardCenter + positions[2].y, boardCenter + positions[7].x, boardCenter + positions[7].y);
+
+                // Linhas horizontais (ligando left-right)
+                createLine(boardElement, boardCenter + positions[1].x, boardCenter + positions[1].y, boardCenter + positions[4].x, boardCenter + positions[4].y);
+                createLine(boardElement, boardCenter + positions[3].x, boardCenter + positions[3].y, boardCenter + positions[6].x, boardCenter + positions[6].y);
             }
         }
 
@@ -92,8 +107,8 @@
         function createCircle(boardElement, x, y, id) {
             const cell = document.createElement('div');
             cell.classList.add('cell');
-            cell.style.left = `${x - 15}px`; /* Ajuste para círculos menores */
-            cell.style.top = `${y - 15}px`; /* Ajuste para círculos menores */
+            cell.style.left = `${x - 15}px`; 
+            cell.style.top = `${y - 15}px`; 
             cell.id = id;
             cell.addEventListener('click', () => handleCellClick(cell));
             boardElement.appendChild(cell);
