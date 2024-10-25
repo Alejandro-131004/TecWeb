@@ -309,8 +309,7 @@ function getMillLines(square, index, numCircles) { //dei bue tryhard desculpem
     }
 
     return millLines;
-}
-function removeOpponentPiece(cell) {
+}function removeOpponentPiece(cell) {
     const [square, index] = cell.id.split('-').slice(1).map(Number); // Extrai a posição da célula a partir do id
     const opponent = opponentPlayer();
 
@@ -318,12 +317,18 @@ function removeOpponentPiece(cell) {
     if (board[square][index] === opponent) {
         // Verifica se a peça está em um moinho
         const numCircles = board.length;
-        if (!checkForMill(square, index, board, opponent, numCircles)) {
+        if (checkForMill(square, index, board, opponent, numCircles)) {
+            // Peça faz parte de um moinho, não pode ser removida
+            status.textContent = "Não se pode remover uma peça de um moinho!";
+            return false; // Indica que a peça não foi removida
+        } else {
             // Peça não faz parte de um moinho, pode ser removida
             cell.style.backgroundColor = ""; // Remove a peça visualmente
             board[square][index] = null; // Remove a peça da matriz do tabuleiro
             status.textContent = `${opponent} teve uma peça removida. Vez de ${currentPlayer}.`;
 
+            // Após remover a peça, alterna o turno
+            togglePlayer();
             return true; // Sucesso ao remover a peça
         }
     }
@@ -353,8 +358,8 @@ function startRemoveOpponentPiece() {
                 // Remover os listeners após a remoção bem-sucedida
                 cells.forEach(c => c.removeEventListener('click', handleRemovePiece));
 
-                // Alterna o turno para o próximo jogador
-                togglePlayer();
+                // Continua verificando novos moinhos no próximo turno
+                status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
             }
         }
     }
