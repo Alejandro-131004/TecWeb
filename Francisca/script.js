@@ -106,11 +106,23 @@ function createLine(boardElement, x1, y1, x2, y2) {
     boardElement.appendChild(line);
 }
 
+
+//debug prints 
 function handleCellClick(cell) {
     if (phase === 1 && !cell.innerHTML) {
         placePiece(cell);
     }
+
+    // Exibir o conteúdo atual do tabuleiro para cada célula
+    //let boardContent = board.map((circle, i) =>
+        //circle.map((value, j) => `(${i}-${j}: ${value || "empty"})`).join(", ")
+    //).join("\n");
+
+    //console.log("Conteúdo do tabuleiro:\n", boardContent); // Exibir no console
+
+    //status.textContent = "Conteúdo do tabuleiro:\n" + boardContent.replace(/\n/g, '<br>'); // Exibir no status
 }
+
 function placePiece(cell) {
     const [square, index] = cell.id.split('-').slice(1).map(Number); // Extrai a posição da célula a partir do id
 
@@ -151,63 +163,6 @@ function placePiece(cell) {
     }
 }
 
-function removeOpponentPiece(cell) {
-    const [square, index] = cell.id.split('-').slice(1).map(Number); // Extrai a posição da célula a partir do id
-    const opponent = opponentPlayer();
-
-    // Verifica se a célula contém uma peça do adversário
-    if (board[square][index] === opponent) {
-        // Verifica se a peça está em um moinho
-        const numCircles = board.length;
-        if (!checkForMill(square, index, board, opponent, numCircles)) {
-            // Peça não faz parte de um moinho, pode ser removida
-            cell.style.backgroundColor = ""; // Remove a peça visualmente
-            board[square][index] = null; // Remove a peça da matriz do tabuleiro
-            status.textContent = `${opponent} teve uma peça removida. Vez de ${currentPlayer}.`;
-
-            // Após remover a peça, alterna o turno
-            togglePlayer();
-            return true; // Sucesso ao remover a peça
-        }
-    }
-    return false; // Falha ao remover a peça
-}
-
-function startRemoveOpponentPiece() {
-    status.textContent = `${currentPlayer} formou um moinho! Selecione uma peça do adversário para remover.`;
-
-    // Temporariamente desabilitar a colocação de peças e permitir a remoção
-    const cells = boardElement.querySelectorAll('.cell');
-    
-    // Adiciona um listener para remover uma peça do oponente
-    cells.forEach(cell => {
-        cell.addEventListener('click', handleRemovePiece);
-    });
-
-    function handleRemovePiece(event) {
-        const cell = event.target;
-        const [square, index] = cell.id.split('-').slice(1).map(Number);
-        const opponent = opponentPlayer();
-
-        // Verifica se a célula contém uma peça do adversário
-        if (board[square][index] === opponent) {
-            // Tenta remover a peça
-            if (removeOpponentPiece(cell)) {
-                // Remover os listeners após a remoção bem-sucedida
-                cells.forEach(c => c.removeEventListener('click', handleRemovePiece));
-
-                // Continua verificando novos moinhos no próximo turno
-                status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
-            }
-        }
-    }
-}
-
-function togglePlayer() {
-    currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
-    status.textContent = `Vez de ${currentPlayer}.`;
-    updatePieceCount();
-}
 
 function checkForMill(square, index, board, currentPlayer, numCircles) {
     // Verifica as possíveis linhas de moinhos e retorna true se encontrar um
@@ -224,12 +179,10 @@ function checkForMill(square, index, board, currentPlayer, numCircles) {
 }
 
 
-
-
 function togglePlayer() {
     currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
     status.textContent = `Vez de ${currentPlayer}.`;
-    updatePieceCount();
+    updatePieceCount(); 
 }
 
 
@@ -267,8 +220,17 @@ function checkForMill(square, index, board, currentPlayer, numCircles) {
 
 
 
-function getMillLines(square, index, numCircles) { //dei bue tryhard desculpem 
+function getMillLines(square, index, numCircles) {
     const millLines = [];
+
+    // Função auxiliar para obter subconjuntos de 3 elementos de uma linha
+    function getSubsetsOfThree(line) {
+        const subsets = [];
+        for (let i = 0; i <= line.length - 3; i++) {
+            subsets.push(line.slice(i, i + 3));
+        }
+        return subsets;
+    }
 
     // 1. Linhas horizontais no mesmo círculo
     if (index === 0 || index === 2 || index === 4 || index === 6) {
@@ -289,12 +251,13 @@ function getMillLines(square, index, numCircles) { //dei bue tryhard desculpem
         }
 
     } else if (index === 1 || index === 3 || index === 5 || index === 7) {
-        // 2. Linhas verticais (entre círculos)
+        // 2. Linhas verticais (entre círculos) - apenas conjuntos de 3
         const verticalLine = [];
         for (let s = 0; s < numCircles; s++) {
             verticalLine.push({ square: s, index });
         }
-        millLines.push(verticalLine);
+        // Adiciona apenas subconjuntos de 3 peças possíveis para formar um moinho
+        millLines.push(...getSubsetsOfThree(verticalLine));
 
         // Linhas horizontais no mesmo círculo
         if (index === 1 || index === 2) {
@@ -309,31 +272,35 @@ function getMillLines(square, index, numCircles) { //dei bue tryhard desculpem
     }
 
     return millLines;
-}function removeOpponentPiece(cell) {
-    const [square, index] = cell.id.split('-').slice(1).map(Number); // Extrai a posição da célula a partir do id
+}
+function removeOpponentPiece(cell) {
+    const [square, index] = cell.id.split('-').slice(1).map(Number);
     const opponent = opponentPlayer();
 
-    // Verifica se a célula contém uma peça do adversário
+    console.log(`Tentando remover peça em ${square}-${index}.`);
+    console.log(`Peça do oponente: ${board[square][index]}, Jogador atual: ${currentPlayer}`);
+
     if (board[square][index] === opponent) {
-        // Verifica se a peça está em um moinho
         const numCircles = board.length;
         if (checkForMill(square, index, board, opponent, numCircles)) {
-            // Peça faz parte de um moinho, não pode ser removida
+            console.log("Peça pertence a um moinho, não pode ser removida.");
             status.textContent = "Não se pode remover uma peça de um moinho!";
-            return false; // Indica que a peça não foi removida
+            return false;
         } else {
-            // Peça não faz parte de um moinho, pode ser removida
-            cell.style.backgroundColor = ""; // Remove a peça visualmente
-            board[square][index] = null; // Remove a peça da matriz do tabuleiro
+            cell.style.backgroundColor = "";
+            board[square][index] = null;
             status.textContent = `${opponent} teve uma peça removida. Vez de ${currentPlayer}.`;
-
-            // Após remover a peça, alterna o turno
             togglePlayer();
-            return true; // Sucesso ao remover a peça
+            return true;
         }
+    } else if (board[square][index] === null) {
+        status.textContent = "Tens de escolher uma peça do adversário para remover!";
+        return false;
     }
-    return false; // Falha ao remover a peça
+
+    return false;
 }
+
 
 function startRemoveOpponentPiece() {
     status.textContent = `${currentPlayer} formou um moinho! Selecione uma peça do adversário para remover.`;
@@ -348,22 +315,25 @@ function startRemoveOpponentPiece() {
 
     function handleRemovePiece(event) {
         const cell = event.target;
+
+        // Verifica se a célula está vazia
         const [square, index] = cell.id.split('-').slice(1).map(Number);
-        const opponent = opponentPlayer();
+        if (board[square][index] === null) {
+            status.textContent = "Tens de escolher uma peça do adversário para remover!";
+            return; // Para a execução se a célula estiver vazia
+        }
 
-        // Verifica se a célula contém uma peça do adversário
-        if (board[square][index] === opponent) {
-            // Tenta remover a peça
-            if (removeOpponentPiece(cell)) {
-                // Remover os listeners após a remoção bem-sucedida
-                cells.forEach(c => c.removeEventListener('click', handleRemovePiece));
+        // Tenta remover a peça; turno avança apenas se for bem-sucedida
+        if (removeOpponentPiece(cell)) {
+            // Remover os listeners após a remoção bem-sucedida
+            cells.forEach(c => c.removeEventListener('click', handleRemovePiece));
 
-                // Continua verificando novos moinhos no próximo turno
-                status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
-            }
+            // Continua verificando novos moinhos no próximo turno
+            status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
         }
     }
 }
+
 
 
 
