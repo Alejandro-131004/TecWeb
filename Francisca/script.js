@@ -68,6 +68,7 @@ function generateBoard(numSquares) {
     }
 }
 
+
 function calculatePositions(radius) {
     return [
         { x: -radius, y: -radius },
@@ -107,28 +108,24 @@ function createLine(boardElement, x1, y1, x2, y2) {
 }
 
 
-//debug prints 
 function handleCellClick(cell) {
     if (phase === 1 && !cell.innerHTML) {
         placePiece(cell);
+    } else if (phase === 2) {
+        handleMove(cell);
     }
-
-    // Exibir o conteúdo atual do tabuleiro para cada célula
-    //let boardContent = board.map((circle, i) =>
-        //circle.map((value, j) => `(${i}-${j}: ${value || "empty"})`).join(", ")
-    //).join("\n");
-
-    //console.log("Conteúdo do tabuleiro:\n", boardContent); // Exibir no console
-
-    //status.textContent = "Conteúdo do tabuleiro:\n" + boardContent.replace(/\n/g, '<br>'); // Exibir no status
 }
-
 function placePiece(cell) {
-    const [square, index] = cell.id.split('-').slice(1).map(Number); // Extrai a posição da célula a partir do id
+    const numSquares = board.length; // número de círculos
+    console.log(`Valor atualizado de numSquares: ${numSquares}`);
+    // Extrai a posição da célula a partir do id
+    const [square, index] = cell.id.split('-').slice(1).map(Number); 
+    console.log(`Tentativa de colocar peça: jogador ${currentPlayer}, célula ${cell.id} (square: ${square}, index: ${index})`);
 
     // Verifica se a posição já está ocupada
     if (board[square][index] !== null) {
         status.textContent = "Essa posição já está ocupada!";
+        console.log(`Posição ocupada: square ${square}, index ${index}`);
         return;
     }
 
@@ -141,32 +138,45 @@ function placePiece(cell) {
             cell.style.backgroundColor = 'red';
             redPiecesPlaced++; // Incrementa o número de peças para Red
             board[square][index] = 'red'; // Atualiza a matriz do tabuleiro
+            console.log(`Peça vermelha colocada: square ${square}, index ${index}. Total peças vermelhas: ${redPiecesPlaced}`);
         } else if (currentPlayer === 'blue') {
             cell.style.backgroundColor = 'blue';
             bluePiecesPlaced++; // Incrementa o número de peças para Blue
             board[square][index] = 'blue'; // Atualiza a matriz do tabuleiro
+            console.log(`Peça azul colocada: square ${square}, index ${index}. Total peças azuis: ${bluePiecesPlaced}`);
         }
 
         // Verifica se uma mill foi formada
-        const numCircles = board.length; // número de círculos
-        if (checkForMill(square, index, board, currentPlayer, numCircles)) {
-            status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
+        
 
+        if (checkForMill(square, index, board, currentPlayer, numSquares)) {
+            status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
+            console.log(`Mill formada por ${currentPlayer} em square ${square}, index ${index}`);
             // Inicia o processo de seleção de peça do adversário
             startRemoveOpponentPiece(); // Chame a função de remoção de peça
         } else {
             // Se não formou uma mill, alterna o jogador imediatamente
             togglePlayer();
+            console.log(`Jogador alternado. Próximo jogador: ${currentPlayer}`);
         }
     } else {
         status.textContent = `${currentPlayer} já colocou todas as suas peças.`;
+        console.log(`Jogador ${currentPlayer} já colocou todas as suas peças. Red: ${redPiecesPlaced}, Blue: ${bluePiecesPlaced}`);
+    }
+
+    // Verifica se todos os jogadores colocaram suas peças para iniciar a Fase 2
+    if (redPiecesPlaced === maxPieces && bluePiecesPlaced === maxPieces) {
+        startMovingPhase(); // Inicia a Fase 2 (movimento de peças)
+        console.log(`Início da Fase 2: ambos os jogadores colocaram suas peças. Red: ${redPiecesPlaced}, Blue: ${bluePiecesPlaced}`);
     }
 }
 
 
-function checkForMill(square, index, board, currentPlayer, numCircles) {
+
+function checkForMill(square, index, board, currentPlayer, numSquares) {
     // Verifica as possíveis linhas de moinhos e retorna true se encontrar um
-    const millLines = getMillLines(square, index, numCircles);
+
+    const millLines = getMillLines(square, index, numSquares);
 
     // Verifica se alguma das linhas é um mill completo
     for (let line of millLines) {
@@ -182,7 +192,7 @@ function checkForMill(square, index, board, currentPlayer, numCircles) {
 function togglePlayer() {
     currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
     status.textContent = `Vez de ${currentPlayer}.`;
-    updatePieceCount(); 
+    //updatePieceCount(); 
 }
 
 
@@ -202,10 +212,9 @@ function resetBoard() {
     boardElement.innerHTML = '';
     board = [];
 }
-
-function checkForMill(square, index, board, currentPlayer, numCircles) {
+function checkForMill(square, index, board, currentPlayer, numSquares) {
     // Obter as linhas possíveis de mills para o círculo e índice dados
-    const millLines = getMillLines(square, index, numCircles);
+    const millLines = getMillLines(square, index, numSquares);
 
     // Verificar se alguma das linhas é um mill completo
     for (let line of millLines) {
@@ -217,10 +226,7 @@ function checkForMill(square, index, board, currentPlayer, numCircles) {
 
     return false; // Nenhum mill encontrado
 }
-
-
-
-function getMillLines(square, index, numCircles) {
+function getMillLines(square, index, numSquares) {
     const millLines = [];
 
     // Função auxiliar para obter subconjuntos de 3 elementos de uma linha
@@ -243,17 +249,17 @@ function getMillLines(square, index, numCircles) {
         }
 
         // Linhas verticais dentro do mesmo círculo
-        if (index === 0 || index === 4) {
-            millLines.push([{ square, index: 0 }, { square, index: 3 }, { square, index: 4 }]);
-        }
-        if (index === 2 || index === 6) {
+        if (index === 0 || index === 6) {
             millLines.push([{ square, index: 0 }, { square, index: 7 }, { square, index: 6 }]);
+        }
+        if (index === 2 || index === 4) {
+            millLines.push([{ square, index: 2 }, { square, index: 3 }, { square, index: 4 }]);
         }
 
     } else if (index === 1 || index === 3 || index === 5 || index === 7) {
         // 2. Linhas verticais (entre círculos) - apenas conjuntos de 3
         const verticalLine = [];
-        for (let s = 0; s < numCircles; s++) {
+        for (let s = 0; s < numSquares; s++) {
             verticalLine.push({ square: s, index });
         }
         // Adiciona apenas subconjuntos de 3 peças possíveis para formar um moinho
@@ -277,30 +283,31 @@ function removeOpponentPiece(cell) {
     const [square, index] = cell.id.split('-').slice(1).map(Number);
     const opponent = opponentPlayer();
 
-    console.log(`Tentando remover peça em ${square}-${index}.`);
-    console.log(`Peça do oponente: ${board[square][index]}, Jogador atual: ${currentPlayer}`);
+    console.log(`Tentando remover peÃ§a em ${square}-${index}.`);
+    console.log(`PeÃ§a do oponente: ${board[square][index]}, Jogador atual: ${currentPlayer}`);
 
+    while(board[square][index] !== opponent) {
+        status.textContent = "Tens de escolher uma peÃ§a do adversÃ¡rio para remover!";
+
+    }
+    
     if (board[square][index] === opponent) {
-        const numCircles = board.length;
-        if (checkForMill(square, index, board, opponent, numCircles)) {
+        const numSquares = board.length;
+        if (checkForMill(square, index, board, opponent, numSquares)) {
             console.log("Peça pertence a um moinho, não pode ser removida.");
-            status.textContent = "Não se pode remover uma peça de um moinho!";
+            status.textContent = "NÃ£o se pode remover uma peÃ§a de um moinho!";
             return false;
         } else {
             cell.style.backgroundColor = "";
             board[square][index] = null;
-            status.textContent = `${opponent} teve uma peça removida. Vez de ${currentPlayer}.`;
+            status.textContent = `${opponent} teve uma peÃ§a removida. Vez de ${currentPlayer}.`;
             togglePlayer();
             return true;
         }
-    } else if (board[square][index] === null) {
-        status.textContent = "Tens de escolher uma peça do adversário para remover!";
-        return false;
-    }
+    } 
 
     return false;
 }
-
 
 function startRemoveOpponentPiece() {
     status.textContent = `${currentPlayer} formou um moinho! Selecione uma peça do adversário para remover.`;
@@ -315,28 +322,204 @@ function startRemoveOpponentPiece() {
 
     function handleRemovePiece(event) {
         const cell = event.target;
-
-        // Verifica se a célula está vazia
         const [square, index] = cell.id.split('-').slice(1).map(Number);
+
+        // Verifica se a célula está vazia ou pertence ao jogador atual
         if (board[square][index] === null) {
             status.textContent = "Tens de escolher uma peça do adversário para remover!";
-            return; // Para a execução se a célula estiver vazia
+            return; // Retorna imediatamente, sem avançar o turno
         }
 
-        // Tenta remover a peça; turno avança apenas se for bem-sucedida
+        // Tenta remover a peça do adversário e avança o turno somente se for bem-sucedido
         if (removeOpponentPiece(cell)) {
             // Remover os listeners após a remoção bem-sucedida
             cells.forEach(c => c.removeEventListener('click', handleRemovePiece));
 
-            // Continua verificando novos moinhos no próximo turno
+            // Retoma o jogo
             status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
         }
     }
 }
 
 
-
-
 function opponentPlayer() {
     return currentPlayer === 'red' ? 'blue' : 'red';
+}
+
+function startMovingPhase() {
+    phase = 2;
+    status.textContent = `Fase de mover peças! Vez de ${currentPlayer}.`;
+}
+ 
+
+function isMoveValid(from, to, numSquares) {
+    const playerPieces = board.flat().filter(piece => piece === currentPlayer).length;
+    if (playerPieces === 3) return true;
+
+    const adjacentCells = getAdjacentCells(from.square, from.index, numSquares);
+    console.log(`Células adjacentes de square: ${from.square}, index: ${from.index}`, adjacentCells);
+    console.log(`Tentando mover para square: ${to.square}, index: ${to.index}`);
+
+    return adjacentCells.some(cell => cell.square === to.square && cell.index === to.index);
+}
+
+function handleMove(cell) {
+    if (phase !== 2) return;
+
+    const [square, index] = cell.id.split('-').slice(1).map(Number);
+
+    if (selectedPiece === null) {
+        // Seleciona a peça caso nenhuma esteja selecionada ainda
+        if (board[square][index] === currentPlayer) {
+            selectedPiece = { square, index };
+            cell.classList.add('selected');
+            console.log(`Peça selecionada em square: ${square}, index: ${index}`);
+            status.textContent = `Movendo ${currentPlayer}, selecione uma casa contígua vazia.`;
+        } else {
+            status.textContent = `Escolha uma de suas peças para mover!`;
+        }
+    } else {
+        const numSquares = board.length;
+        // Se a mesma célula for clicada novamente, desseleciona a peça
+        if (selectedPiece.square === square && selectedPiece.index === index) {
+            cell.classList.remove('selected');
+            selectedPiece = null;
+            status.textContent = `Seleção cancelada. Escolha uma peça para mover.`;
+        } 
+        // Verifica se a célula é vazia e se o movimento é válido
+        
+        else if (board[square][index] === null && isMoveValid(selectedPiece, { square, index }, numSquares)) {
+            console.log(`Movimento válido de square: ${selectedPiece.square}, index: ${selectedPiece.index} para square: ${square}, index: ${index}`);
+            movePiece(selectedPiece, { square, index });
+            document.getElementById(`cell-${selectedPiece.square}-${selectedPiece.index}`).classList.remove('selected');
+            selectedPiece = null;
+            checkEndGameConditions();
+        } else {
+            console.log(`Movimento inválido para square: ${square}, index: ${index}`);
+            document.getElementById(`cell-${selectedPiece.square}-${selectedPiece.index}`).classList.remove('selected');
+            selectedPiece = null;
+            status.textContent = `Selecione uma casa contígua vazia!`;
+        }
+    }
+}
+
+function getAdjacentCells(square, index, numSquares) {
+    const adjacentCells = [];
+    console.log(`Calculando células adjacentes para square: ${square}, index: ${index}`);
+    // Adiciona adjacentes com base no índice
+    switch (index) {
+        case 0:
+            // (círculo, 1) e (círculo, 3)
+            adjacentCells.push({ square, index: 3 });
+            adjacentCells.push({ square, index: 7 });
+            
+            break;
+
+        case 1:
+            // (círculo, 0), (círculo, 2), (círculo+1, 1) caso exista, (círculo-1, 1) caso exista
+            adjacentCells.push({ square, index: 0 });
+            adjacentCells.push({ square, index: 2 });
+            if (square + 1 < numSquares) {
+                adjacentCells.push({ square: square + 1, index: 1 });
+            }
+            if (square - 1 >= 0) {
+                adjacentCells.push({ square: square - 1, index: 1 });
+            }
+            break;
+
+        case 2:
+            // (círculo, 1), (círculo, 7)
+            adjacentCells.push({ square, index: 1 });
+            adjacentCells.push({ square, index: 3 });
+            break;
+
+        case 3:
+            // (círculo, 0), (círculo, 4), (círculo+1, 3) caso exista, (círculo-1, 3) caso exista
+            adjacentCells.push({ square, index: 2 });
+            adjacentCells.push({ square, index: 4 });
+            if (square + 1 <= numSquares) {
+                adjacentCells.push({ square: square + 1, index: 3 });
+            }
+            if (square - 1 >= 0) {
+                adjacentCells.push({ square: square - 1, index: 3 });
+            }
+            break;
+
+        case 4:
+            // (círculo, 3), (círculo, 5)
+            adjacentCells.push({ square, index: 3 });
+            adjacentCells.push({ square, index: 5 });
+            break;
+
+        case 5:
+            // (círculo, 4), (círculo, 6), (círculo+1, 5) caso exista, (círculo-1, 5) caso exista
+            adjacentCells.push({ square, index: 4 });
+            adjacentCells.push({ square, index: 6 });
+            if (square + 1 <= numSquares) {
+                adjacentCells.push({ square: square + 1, index: 5 });
+            }
+            if (square - 1 >= 0) {
+                adjacentCells.push({ square: square - 1, index: 5 });
+            }
+            break;
+
+        case 6:
+            // (círculo, 5), (círculo, 7)
+            adjacentCells.push({ square, index: 5 });
+            adjacentCells.push({ square, index: 7 });
+            break;
+
+        case 7:
+            // (círculo, 6), (círculo, 2), (círculo+1, 7) caso exista, (círculo-1, 7) caso exista
+            adjacentCells.push({ square, index: 6 });
+            adjacentCells.push({ square, index: 0 });
+            if (square + 1 <= numSquares) {
+                adjacentCells.push({ square: square + 1, index: 7 });
+            }
+            if (square - 1 >= 0) {
+                adjacentCells.push({ square: square - 1, index: 7 });
+            }
+            break;
+
+        default:
+            // Caso não reconhecido
+            break;
+    }
+    console.log(`Células adjacentes para square: ${square}, index: ${index}`, adjacentCells);
+    return adjacentCells;
+}
+
+function movePiece(from, to) {
+    // Atualiza o estado do tabuleiro
+    board[to.square][to.index] = currentPlayer;
+    board[from.square][from.index] = null;
+
+    // Atualiza visualmente as células
+    document.getElementById(`cell-${from.square}-${from.index}`).style.backgroundColor = '';
+    document.getElementById(`cell-${to.square}-${to.index}`).style.backgroundColor = currentPlayer;
+
+    status.textContent = `Peça movida. Vez de ${opponentPlayer()}`;
+    togglePlayer(); // Troca de jogador já está aqui
+}
+
+function getCurrentPlayerPieces() {
+    // Retorna uma lista das peças do jogador atual
+    return board.flatMap((circle, square) => 
+        circle.map((piece, index) => 
+            piece === currentPlayer ? { square, index } : null
+        )
+    ).filter(piece => piece !== null);
+}
+
+function checkEndGameConditions() {
+    const redPieces = getCurrentPlayerPieces('red').length;
+    const bluePieces = getCurrentPlayerPieces('blue').length;
+
+    if (redPieces < 3 || bluePieces < 3) {
+        status.textContent = `${redPieces < 3 ? 'Red' : 'Blue'} venceu o jogo!`;
+        phase = 3; // Finaliza o jogo
+    } //else if (isDrawConditionMet()) {
+        //status.textContent = "O jogo terminou em empate!";
+        //phase = 3;
+    //Ss}
 }
