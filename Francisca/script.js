@@ -8,6 +8,8 @@ let maxPieces = 0;
 let board = [];
 const status = document.getElementById('status');
 const boardElement = document.getElementById('board');
+let movesWithoutMill = 0; // contador de movimentos sem moinho
+let lastMillFormedTurn = 0;
 
 function startGame() {
     const numSquares = parseInt(document.getElementById('numSquares').value);
@@ -117,7 +119,6 @@ function handleCellClick(cell) {
 }
 function placePiece(cell) {
     const numSquares = board.length; // número de círculos
-    console.log(`Valor atualizado de numSquares: ${numSquares}`);
     // Extrai a posição da célula a partir do id
     const [square, index] = cell.id.split('-').slice(1).map(Number); 
     console.log(`Tentativa de colocar peça: jogador ${currentPlayer}, célula ${cell.id} (square: ${square}, index: ${index})`);
@@ -283,11 +284,22 @@ function removeOpponentPiece(cell) {
     const [square, index] = cell.id.split('-').slice(1).map(Number);
     const opponent = opponentPlayer();
 
+
     console.log(`Tentando remover peÃ§a em ${square}-${index}.`);
     console.log(`PeÃ§a do oponente: ${board[square][index]}, Jogador atual: ${currentPlayer}`);
 
-    while(board[square][index] !== opponent) {
-        status.textContent = "Tens de escolher uma peçaa do adversário para remover!";
+    if (board[square][index] !== opponent){
+        console.log(`niggggggger 1`);
+
+    }
+
+    if (board[square][index]===null ){
+        console.log(`niggggggger 2`);
+    }
+
+
+    while(board[square][index] !== opponent && board[square][index]===null ) {
+        status.textContent = "Tens de escolher uma peça do adversário para remover removeOpponentPiece!";
     }
     
     if (board[square][index] === opponent) {
@@ -307,6 +319,7 @@ function removeOpponentPiece(cell) {
     return false;
 }
 
+
 function startRemoveOpponentPiece() {
     status.textContent = `${currentPlayer} formou um moinho! Selecione uma peça do adversário para remover.`;
 
@@ -315,6 +328,7 @@ function startRemoveOpponentPiece() {
     
     // Adiciona um listener para remover uma peça do oponente
     cells.forEach(cell => {
+        
         cell.addEventListener('click', handleRemovePiece);
     });
 
@@ -322,9 +336,10 @@ function startRemoveOpponentPiece() {
         const cell = event.target;
         const [square, index] = cell.id.split('-').slice(1).map(Number);
 
+        console.log(`niggggggger`);
         // Verifica se a célula está vazia ou pertence ao jogador atual
         if (board[square][index] === null) {
-            status.textContent = "Tens de escolher uma peça do adversário para remover!";
+            status.textContent = "Tens de escolher uma peça do adversário para remover! dentro handle";
             return; // Retorna imediatamente, sem avançar o turno
         }
 
@@ -352,7 +367,7 @@ function startMovingPhase() {
 
 function isMoveValid(from, to, numSquares) {
     const playerPieces = board.flat().filter(piece => piece === currentPlayer).length;
-    if (playerPieces === 3) return true;
+    if (playerPieces === 3) return true; //A função verifica se o jogador possui exatamente três peças em jogo. Se sim, ele pode mover-se para qualquer célula livre, então a função retorna true.
 
     const adjacentCells = getAdjacentCells(from.square, from.index, numSquares);
     console.log(`Células adjacentes de square: ${from.square}, index: ${from.index}`, adjacentCells);
@@ -360,8 +375,9 @@ function isMoveValid(from, to, numSquares) {
 
     return adjacentCells.some(cell => cell.square === to.square && cell.index === to.index);
 }
+
 function handleMove(cell) {
-    if (phase !== 2) return;
+    if (phase !== 2) return; // Verifica se a fase é a Fase 2
 
     const [square, index] = cell.id.split('-').slice(1).map(Number);
 
@@ -394,19 +410,20 @@ function handleMove(cell) {
                 status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
                 startRemoveOpponentPiece();
             } else {
-                // Se não formou uma mill, alterna o jogador imediatamente
+                // Se não formou uma mill, alterna o jogador
+                movesWithoutMill++; // Incrementa o contador de movimentos sem mill
+                console.log({ movesWithoutMill }); 
                 togglePlayer();
                 status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
             }
 
-            checkEndGameConditions();
+            checkEndGameConditions(); // Verifica condições de fim de jogo
+            checkForDraw(); // Verifica se há um empate
         } else {
             status.textContent = `Movimento inválido. Escolha uma casa vazia e contígua.`;
         }
     }
 }
-
-
 
 function getAdjacentCells(square, index, numSquares) {
     const adjacentCells = [];
@@ -520,11 +537,47 @@ function checkEndGameConditions() {
     const redPieces = getCurrentPlayerPieces('red').length;
     const bluePieces = getCurrentPlayerPieces('blue').length;
 
-    if (redPieces < 3 || bluePieces < 3) {
-        status.textContent = `${redPieces < 3 ? 'Red' : 'Blue'} venceu o jogo!`;
-        phase = 3; // Finaliza o jogo
-    } //else if (isDrawConditionMet()) {
-        //status.textContent = "O jogo terminou em empate!";
-        //phase = 3;
-    //Ss}
+    if (redPieces < 3) {
+        status.textContent = "Jogador Blue venceu!";
+        endGame();
+    } else if (bluePieces < 3) {
+        status.textContent = "Jogador Red venceu!";
+        endGame();
+    }
 }
+
+function endGame() {
+    phase = 0; // Encerra o jogo
+    const cells = boardElement.querySelectorAll('.cell');
+    cells.forEach(cell => cell.removeEventListener('click', handleCellClick));
+}
+
+function checkForDraw() {
+    const redPieces = board.flat().filter(piece => piece === 'red').length;
+    const bluePieces = board.flat().filter(piece => piece === 'blue').length;
+
+    // Empate se ambos tiverem 3 peças e 10 movimentos sem moinho
+    if (movesWithoutMill >= 10 || (redPieces === 3 && bluePieces === 3)) {
+        status.textContent = "Empate! Jogo terminado.";
+        endGame();
+    }
+}
+ 
+
+
+function openInstructions() {
+    document.getElementById("instructionsModal").style.display = "block";
+}
+
+function closeInstructions() {
+    document.getElementById("instructionsModal").style.display = "none";
+}
+
+// Fecha o modal ao clicar fora do conteúdo
+window.onclick = function(event) {
+    const modal = document.getElementById("instructionsModal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+};
+

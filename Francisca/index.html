@@ -23,8 +23,7 @@
 
     <script src="script.js"></script>
 </body>
-</html>
--->
+</html>-->
 
 
 <!DOCTYPE html>
@@ -48,7 +47,23 @@
     <div id="status">Bem-vindo ao Jogo do Moinho!</div>
     
     <div id="board"></div>
-    <button id="restartBtn" onclick="startGame()">Reiniciar Jogo</button>
+    
+    <div style="display: flex; justify-content: space-between; padding: 10px;">
+        <button id="instructionsBtn" onclick="openInstructions()">Instruções</button>
+        <button id="restartBtn" onclick="startGame()">Reiniciar Jogo</button>
+    </div>
+    
+    <!-- Modal para as Instruções, que estará oculto por padrão -->
+    <div id="instructionsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeInstructions()">&times;</span>
+            <h2>Regras do Jogo do Moinho</h2>
+            <p>1. O objetivo é formar uma linha de três peças (um "moinho").</p>
+            <p>2. Quando formares um moinho, podes remover uma peça do adversário.</p>
+            <p>3. O jogo termina quando um jogador tiver apenas duas peças ou não puder fazer movimentos válidos.</p>
+        </div>
+    </div>
+    
 
     <script src="script.js"></script>
 </body>
