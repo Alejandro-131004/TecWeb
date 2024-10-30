@@ -161,7 +161,7 @@ function placePiece(cell) {
         }
     } else {
         status.textContent = `${currentPlayer} já colocou todas as suas peças.`;
-        console.log(`Jogador ${currentPlayer} já colocou todas as suas peças. Red: ${redPiecesPlaced}, Blue: ${bluePiecesPlaced}`);
+        console.log(`Jogador ${currentPlayer} já colocou todas as suas peças. Red: ${redPiecesPlaced}, Blue: ${bluePiecesPlaced} erro`);
     }
 
     // Verifica se todos os jogadores colocaram suas peças para iniciar a Fase 2
@@ -170,7 +170,6 @@ function placePiece(cell) {
         console.log(`Início da Fase 2: ambos os jogadores colocaram suas peças. Red: ${redPiecesPlaced}, Blue: ${bluePiecesPlaced}`);
     }
 }
-
 
 
 function checkForMill(square, index, board, currentPlayer, numSquares) {
@@ -279,6 +278,7 @@ function getMillLines(square, index, numSquares) {
 
     return millLines;
 }
+
 function removeOpponentPiece(cell) {
     const [square, index] = cell.id.split('-').slice(1).map(Number);
     const opponent = opponentPlayer();
@@ -287,8 +287,7 @@ function removeOpponentPiece(cell) {
     console.log(`PeÃ§a do oponente: ${board[square][index]}, Jogador atual: ${currentPlayer}`);
 
     while(board[square][index] !== opponent) {
-        status.textContent = "Tens de escolher uma peÃ§a do adversÃ¡rio para remover!";
-
+        status.textContent = "Tens de escolher uma peçaa do adversário para remover!";
     }
     
     if (board[square][index] === opponent) {
@@ -305,7 +304,6 @@ function removeOpponentPiece(cell) {
             return true;
         }
     } 
-
     return false;
 }
 
@@ -362,7 +360,6 @@ function isMoveValid(from, to, numSquares) {
 
     return adjacentCells.some(cell => cell.square === to.square && cell.index === to.index);
 }
-
 function handleMove(cell) {
     if (phase !== 2) return;
 
@@ -373,13 +370,13 @@ function handleMove(cell) {
         if (board[square][index] === currentPlayer) {
             selectedPiece = { square, index };
             cell.classList.add('selected');
-            console.log(`Peça selecionada em square: ${square}, index: ${index}`);
             status.textContent = `Movendo ${currentPlayer}, selecione uma casa contígua vazia.`;
         } else {
             status.textContent = `Escolha uma de suas peças para mover!`;
         }
     } else {
         const numSquares = board.length;
+
         // Se a mesma célula for clicada novamente, desseleciona a peça
         if (selectedPiece.square === square && selectedPiece.index === index) {
             cell.classList.remove('selected');
@@ -387,21 +384,29 @@ function handleMove(cell) {
             status.textContent = `Seleção cancelada. Escolha uma peça para mover.`;
         } 
         // Verifica se a célula é vazia e se o movimento é válido
-        
         else if (board[square][index] === null && isMoveValid(selectedPiece, { square, index }, numSquares)) {
-            console.log(`Movimento válido de square: ${selectedPiece.square}, index: ${selectedPiece.index} para square: ${square}, index: ${index}`);
             movePiece(selectedPiece, { square, index });
             document.getElementById(`cell-${selectedPiece.square}-${selectedPiece.index}`).classList.remove('selected');
             selectedPiece = null;
+
+            // Verificar se o movimento formou uma mill
+            if (checkForMill(square, index, board, currentPlayer, numSquares)) {
+                status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
+                startRemoveOpponentPiece();
+            } else {
+                // Se não formou uma mill, alterna o jogador imediatamente
+                togglePlayer();
+                status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
+            }
+
             checkEndGameConditions();
         } else {
-            console.log(`Movimento inválido para square: ${square}, index: ${index}`);
-            document.getElementById(`cell-${selectedPiece.square}-${selectedPiece.index}`).classList.remove('selected');
-            selectedPiece = null;
-            status.textContent = `Selecione uma casa contígua vazia!`;
+            status.textContent = `Movimento inválido. Escolha uma casa vazia e contígua.`;
         }
     }
 }
+
+
 
 function getAdjacentCells(square, index, numSquares) {
     const adjacentCells = [];
@@ -409,8 +414,8 @@ function getAdjacentCells(square, index, numSquares) {
     // Adiciona adjacentes com base no índice
     switch (index) {
         case 0:
-            // (círculo, 1) e (círculo, 3)
-            adjacentCells.push({ square, index: 3 });
+            // (círculo, 1) e (círculo, 7)
+            adjacentCells.push({ square, index: 1 });
             adjacentCells.push({ square, index: 7 });
             
             break;
@@ -499,7 +504,7 @@ function movePiece(from, to) {
     document.getElementById(`cell-${to.square}-${to.index}`).style.backgroundColor = currentPlayer;
 
     status.textContent = `Peça movida. Vez de ${opponentPlayer()}`;
-    togglePlayer(); // Troca de jogador já está aqui
+    
 }
 
 function getCurrentPlayerPieces() {
