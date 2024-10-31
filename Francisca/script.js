@@ -564,7 +564,6 @@ function checkForDraw() {
 }
  
 
-
 function openInstructions() {
     document.getElementById("instructionsModal").style.display = "block";
 }
@@ -581,3 +580,109 @@ window.onclick = function(event) {
     }
 };
 
+// Referências para elementos de configuração
+const gameModeSelect = document.getElementById("game-mode");
+const firstPlayerSelect = document.getElementById("first-player");
+const aiLevelSelect = document.getElementById("ai-level");
+const startGameButton = document.getElementById("start-game");
+
+// Variáveis de controle
+let gameMode = "player"; // Dois jogadores por padrão
+let firstPlayer = "red"; // Red inicia por padrão
+let aiLevel = "easy"; // Nível de dificuldade da IA, caso seja modo contra o computador
+
+// Ativa ou desativa o nível de IA com base no modo selecionado
+gameModeSelect.addEventListener("change", function () {
+    gameMode = gameModeSelect.value;
+    aiLevelSelect.disabled = gameMode !== "computer";
+});
+
+// Captura as outras configurações ao clicar para iniciar o jogo
+startGameButton.addEventListener("click", function () {
+    firstPlayer = firstPlayerSelect.value;
+    aiLevel = aiLevelSelect.value;
+
+    // Inicializa o jogo conforme as configurações
+    initializeGame(gameMode, firstPlayer, aiLevel);
+});
+
+// Função para inicializar o jogo com as configurações selecionadas
+function initializeGame(gameMode, firstPlayer, aiLevel) {
+    console.log("Modo de Jogo:", gameMode);
+    console.log("Primeiro Jogador:", firstPlayer);
+    console.log("Nível da IA:", aiLevel);
+
+    // Configurar lógica para inicializar o jogo com as preferências
+    if (gameMode === "computer") {
+        startGameWithAI(firstPlayer, aiLevel);
+    } else {
+        startGameTwoPlayers(firstPlayer);
+    }
+}
+
+// Funções de exemplo para iniciar o jogo
+function startGameWithAI(firstPlayer, aiLevel) {
+    // Lógica de inicialização do jogo contra IA aqui
+    console.log(`Iniciando jogo contra IA. Nível: ${aiLevel}. Primeiro a jogar: ${firstPlayer}`);
+    // Implementar lógica do jogo contra IA...
+}
+
+function startGameTwoPlayers(firstPlayer) {
+    // Lógica de inicialização do jogo para dois jogadores
+    console.log(`Iniciando jogo entre dois jogadores. Primeiro a jogar: ${firstPlayer}`);
+    // Implementar lógica do jogo de dois jogadores...
+}
+
+// Referência ao botão "Desistir do Jogo"
+const quitGameButton = document.getElementById("quit-game");
+
+// Adiciona um evento de clique ao botão para desistir do jogo
+quitGameButton.addEventListener("click", function () {
+    quitGame();
+});
+
+// Função para desistir do jogo
+function quitGame() {
+    const confirmQuit = confirm("Tem certeza de que deseja desistir do jogo?");
+    if (confirmQuit) {
+        console.log("Jogo finalizado pelo jogador.");
+        alert("Você desistiu do jogo.");
+        startGame();
+        document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
+    }
+    
+}
+
+// Funções para mostrar/ocultar configurações e comandos
+function toggleConfig() {
+    const configArea = document.getElementById("config-area");
+    configArea.style.display = configArea.style.display === "none" ? "block" : "none";
+}
+
+function toggleCommands() {
+    const commands = document.getElementById("commands");
+    commands.style.display = commands.style.display === "none" ? "block" : "none";
+}
+
+function viewScores() {
+    alert("Visualizando as classificações!");
+}
+
+// Função para alternar a área de identificação
+function toggleAuth() {
+    const authArea = document.getElementById('identification');
+    if (authArea.style.display === 'none') {
+        authArea.style.display = 'block';
+    } else {
+        authArea.style.display = 'none';
+    }
+}
+
+// Função para autenticar o jogador
+function authenticateUser(event) {
+    event.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    // Implementar a lógica de autenticação
+    alert(`Usuário: ${username}, Senha: ${password}`);
+}
