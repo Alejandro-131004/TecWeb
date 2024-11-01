@@ -72,47 +72,59 @@
     text-decoration: none;
 }
 
-/* Estilo para os botões */
+/* Estilo do botão Configuração e Identificação */
 .config-button, .commands-button {
     background-color: #007BFF;
     color: white;
     padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px; /* Deixa os botões com bordas mais arredondadas */
     font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.1s;
+    margin-bottom: 10px; /* Dá espaço entre os botões e outros elementos */
 }
 
-.config-button:hover {
+.config-button:hover, .commands-button:hover {
     background-color: #0056b3;
+    transform: scale(1.05); /* Efeito de leve aumento ao passar o mouse */
 }
 
+/* Estilo do botão de comandos */
 .commands-button {
-    background-color: #010e01;
+    background-color: #333; /* Preto */
+    color: white;
+    margin-top: -50px; /* Ajuste grande para subir visivelmente */
+    transition: background-color 0.3s, transform 0.1s;
 }
 
 .commands-button:hover {
     background-color: #45a049;
+    transform: scale(1.05);
 }
 
-/* Estilo para a mensagem de reinício */
-.restart-message {
-    font-weight: 600; /* Negrito leve */
-    margin-top: 10px; /* Espaçamento superior */
-}
-
-
-/* Nova classe para o botão "Entrar" */
+/* Estilo do botão de login */
 .login-button {
     padding: 10px 20px;
-    background-color: #e7e7e7;
-    border: 1px solid #ccc;
+    background-color: #0056b3; /* Azul escuro */
+    color: white;
+    border: none;
     border-radius: 5px;
     font-size: 14px;
     cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
 }
 
 .login-button:hover {
-    background-color: #d7d7d7;
+    background-color: #003f7f;
+    transform: scale(1.05);
+}
+
+.tab-content {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }

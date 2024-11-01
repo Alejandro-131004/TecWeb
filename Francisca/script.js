@@ -686,3 +686,18 @@ function authenticateUser(event) {
     // Implementar a lógica de autenticação
     alert(`Usuário: ${username}, Senha: ${password}`);
 }
+
+
+function showInstructionContent(topicId) {
+    // Oculta todos os conteúdos de instruções
+    const contents = document.querySelectorAll('.instruction-text');
+    contents.forEach(content => {
+        content.style.display = 'none';
+    });
+
+    // Mostra o conteúdo selecionado
+    const selectedContent = document.getElementById(topicId);
+    if (selectedContent) {
+        selectedContent.style.display = 'block';
+    }
+}
