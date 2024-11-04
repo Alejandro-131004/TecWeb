@@ -1,123 +1,165 @@
-/* Estilos para o tabuleiro e células */
-/*.board {
+/* Estilo para o tabuleiro */
+#board {
     position: relative;
-    background-color: #3a3d47;
-    border: 5px solid #ffffff;
-    border-radius: 15px;
-    display: grid;
-    gap: 40px;
+    width: 800px;
+    height: 750px;
+    margin: 30px auto;
+    background-color: rgb(239, 221, 170);
 }
 
+/* Células do tabuleiro */
 .cell {
     position: absolute;
-    background-color: #f0f0f0;
-    border: 2px solid #333;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.cell:hover {
-    background-color: #ddd;
-    transform: scale(1.1);
-}
-*/
-/* Redefinir as posições e tamanhos dos quadrados de forma dinâmica */
-/*.piece {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-.red {
-    background-color: #ff4d4d;
-    border: 2px solid #ff1a1a;
-}
-
-.blue {
-    background-color: #4d79ff;
-    border: 2px solid #1a53ff;
-}
-
-.movable {
-    border: 2px dashed yellow;
-}
-
-button {
-    padding: 10px 20px;
-    margin-top: 20px;
-    background-color: #ff1a1a;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #cc0000;
-}
-*/
-
-
-/* Adicione estas regras no seu arquivo CSS */
-
-/* Centralizar todo o conteúdo */
-/* Estilos globais e corpo */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #282c34;
-    color: rgb(200, 181, 181);
+    background-color: rgb(3, 5, 46);
+    border: 2px solid black;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
-.board-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: #1c1e26;
-    border-radius: 10px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-}
-
-.board {
-    position: relative;
-    width: 400px; /* Tamanho do tabuleiro */
-    height: 400px; /* Tamanho do tabuleiro */
-    background-color: #3a3d47;
-    border: 5px solid #ffffff;
-    border-radius: 15px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Ajuste para o número de colunas desejadas */
-    grid-template-rows: repeat(6, 1fr); /* Ajuste para o número de linhas desejadas */
-    gap: 10px; /* Espaço entre as células */
-}
-
-.cell {
-    width: 100%; /* Largura da célula */
-    height: 100%; /* Altura da célula */
-    background-color: #f0f0f0;
-    border: 2px solid #333;
-    border-radius: 10px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    z-index: 2;
+    transition: filter 0.3s, border 0.3s;
 }
 
-/* Células ao passar o mouse */
-.cell:hover {
-    background-color: #ddd;
+/* Linhas do tabuleiro */
+.line {
+    position: absolute;
+    background-color: black;
+    height: 4px;
+}
+
+/* Destaca a peça selecionada */
+.selected {
+    border: 2px solid yellow;
+    background-color: rgba(255, 255, 0, 0.5);
+}
+
+/* Estilo do modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 3;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+/* Estilo do botão Configuração e Identificação */
+.config-button, .commands-button {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px; /* Deixa os botões com bordas mais arredondadas */
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    margin-bottom: 10px; /* Dá espaço entre os botões e outros elementos */
+}
+
+.config-button:hover, .commands-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05); /* Efeito de leve aumento ao passar o mouse */
+}
+
+/* Estilo do botão de comandos */
+.commands-button {
+    background-color: #333; /* Preto */
+    color: white;
+    margin-top: -50px; /* Ajuste grande para subir visivelmente */
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.commands-button:hover {
+    background-color: #45a049;
     transform: scale(1.05);
 }
+
+/* Estilo do botão de login */
+.login-button {
+    padding: 10px 20px;
+    background-color: #0056b3; /* Azul escuro */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.login-button:hover {
+    background-color: #003f7f;
+    transform: scale(1.05);
+}
+
+.tab-content {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Estilo para a mensagem de alerta */
+#alertMessage {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Ajusta a largura em relação ao tabuleiro */
+    background-color: rgba(255, 0, 0, 0.9); /* Fundo vermelho com leve transparência */
+    color: white;
+    border: 3px solid #ffeb3b; /* Borda amarela chamativa */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 25px;
+    z-index: 1000;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Sombra para destaque */
+}
+
+#closeAlert {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 15px; /* Tamanho reduzido da cruz */
+    color: white;
+    cursor: pointer; /* Adiciona o cursor pointer */
+}
+
+
+#closeAlert:hover {
+    color: #ffdddd; /* Cor quando o mouse está sobre o botão */
+}
+
