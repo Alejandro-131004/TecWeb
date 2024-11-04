@@ -10,8 +10,12 @@ const status = document.getElementById('status');
 const boardElement = document.getElementById('board');
 let movesWithoutMill = 0; // contador de movimentos sem moinho
 let lastMillFormedTurn = 0;
+let humanColor, computerColor;
 
-function startGame() {
+
+/*--------------------------------------------------------------------------------IMPLEMENTAÇÃO DO JOGO--------------------------------------------------------------------------------*/
+
+function startGame(firstPlayer) {
     const numSquares = parseInt(document.getElementById('numSquares').value);
 
     if (numSquares < 2) {
@@ -22,18 +26,19 @@ function startGame() {
     resetBoard();
     generateBoard(numSquares);
 
-    // Inicializa o board como matriz vazia com base no número de círculos
     board = Array.from({ length: numSquares }, () => Array(8).fill(null));
 
     phase = 1;
     piecesPlaced = 0;
-    redPiecesPlaced = 0; // Reiniciar contagem de peças para Red
-    bluePiecesPlaced = 0; // Reiniciar contagem de peças para Blue
-    currentPlayer = 'red';
-    status.textContent = `Vez de Red`;
+    redPiecesPlaced = 0;
+    bluePiecesPlaced = 0;
 
-    maxPieces = getNumberOfPieces(numSquares) / 2; // Número máximo de peças por jogador
+    currentPlayer = firstPlayer; // Define o jogador inicial
+    status.textContent = `Vez de ${firstPlayer.charAt(0).toUpperCase() + firstPlayer.slice(1)}`;
+
+    maxPieces = getNumberOfPieces(numSquares) / 2;
 }
+
 
 function generateBoard(numSquares) {
     board = [];  // Inicializa o tabuleiro como uma matriz vazia
@@ -47,6 +52,7 @@ function generateBoard(numSquares) {
     boardElement.innerHTML = ''; // Limpar tabuleiro anterior
     const boardCenter = 400; // Centro do tabuleiro (800px / 2)
     const maxRadius = 300; // Raio máximo ajustado para o quadrado maior
+    
 
     for (let square = 0; square < numSquares; square++) {
         const radius = maxRadius - (square * (maxRadius / numSquares));
@@ -564,6 +570,113 @@ function checkForDraw() {
 }
  
 
+function initializeGame() {
+    const alertMessage = document.getElementById("alertMessage");
+    alertMessage.style.display = "none";
+    // Obtém as configurações do jogo a partir do HTML
+    const gameMode = document.getElementById("game-mode").value;
+    const firstPlayer = document.getElementById("first-player").value;
+    const aiLevel = document.getElementById("ai-level").value;
+
+    console.log("Modo de Jogo:", gameMode);
+    console.log("Primeiro Jogador:", firstPlayer);
+    console.log("Nível da IA:", aiLevel);
+
+    // Verifica o modo de jogo e inicializa o jogo conforme a escolha
+    if (gameMode === "computer") {
+        humanColor = firstPlayer; // O jogador humano tem a cor escolhida
+        computerColor = (humanColor === "red") ? "blue" : "red"; // O computador assume a cor oposta
+        startGameWithAI(computerColor, aiLevel);
+    } else {
+        startGameTwoPlayers(firstPlayer);
+    }
+}
+
+
+
+
+// Funções de exemplo para iniciar o jogo
+function startGameWithAI(firstPlayer, aiLevel) {
+    currentPlayer = firstPlayer;
+    startGame(firstPlayer); // Configura o tabuleiro e variáveis
+
+    if (currentPlayer === computerColor) {
+        makeRandomMove(); // Computador faz a primeira jogada se for o jogador inicial
+    }
+}
+
+function togglePlayerAI() {
+    currentPlayer = (currentPlayer === 'red') ? 'computer' : 'red';
+    status.textContent = `Vez de ${currentPlayer === 'red' ? 'Jogador Humano' : 'Computador'}`;
+
+    // Se for a vez do computador, ele faz uma jogada aleatória
+    if (currentPlayer === 'computer') {
+        setTimeout(makeRandomMove, 5); // Delay para parecer mais natural
+    }
+}
+
+function makeRandomMove() {
+    const availableMoves = [];
+    for (let square = 0; square < board.length; square++) {
+        for (let index = 0; index < board[square].length; index++) {
+            if (board[square][index] === null) {
+                availableMoves.push({ square, index });
+            }
+        }
+    }
+
+    if (availableMoves.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableMoves.length);
+        const { square, index } = availableMoves[randomIndex];
+        board[square][index] = computerColor; // Coloca a peça do computador
+        document.getElementById(`cell-${square}-${index}`).style.backgroundColor = computerColor;
+
+        if (checkForMill(square, index, board, computerColor, board.length)) {
+            status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
+            removePlayerPieceAI();
+        } else {
+            togglePlayerAI(); // Alterna para o jogador humano
+        }
+    }
+}
+
+function removePlayerPieceAI() {
+    const playerPieces = [];
+    for (let square = 0; square < board.length; square++) {
+        for (let index = 0; index < board[square].length; index++) {
+            if (board[square][index] === humanColor) {
+                playerPieces.push({ square, index });
+            }
+        }
+    }
+
+    if (playerPieces.length > 0) {
+        const randomIndex = Math.floor(Math.random() * playerPieces.length);
+        const { square, index } = playerPieces[randomIndex];
+        board[square][index] = null;
+        document.getElementById(`cell-${square}-${index}`).style.backgroundColor = '';
+
+        togglePlayerAI(); // Alterna para o jogador humano após remover a peça
+        status.textContent = "Vez do jogador humano.";
+    }
+}
+
+function startGameTwoPlayers(firstPlayer) {
+    currentPlayer = firstPlayer; // Define o jogador inicial com base na seleção
+    startGame(firstPlayer); // Passa o jogador inicial para a função startGame
+    console.log(`Iniciando jogo entre dois jogadores. Primeiro a jogar: ${firstPlayer}`);
+}
+
+
+function viewScores() {
+    alert("Visualizando as classificações!");
+}
+
+
+
+/*-------------------------------------------------------------------------------------------BOTÕES-------------------------------------------------------------------------------------------*/
+
+
 function openInstructions() {
     document.getElementById("instructionsModal").style.display = "block";
 }
@@ -606,32 +719,6 @@ startGameButton.addEventListener("click", function () {
     initializeGame(gameMode, firstPlayer, aiLevel);
 });
 
-// Função para inicializar o jogo com as configurações selecionadas
-function initializeGame(gameMode, firstPlayer, aiLevel) {
-    console.log("Modo de Jogo:", gameMode);
-    console.log("Primeiro Jogador:", firstPlayer);
-    console.log("Nível da IA:", aiLevel);
-
-    // Configurar lógica para inicializar o jogo com as preferências
-    if (gameMode === "computer") {
-        startGameWithAI(firstPlayer, aiLevel);
-    } else {
-        startGameTwoPlayers(firstPlayer);
-    }
-}
-
-// Funções de exemplo para iniciar o jogo
-function startGameWithAI(firstPlayer, aiLevel) {
-    // Lógica de inicialização do jogo contra IA aqui
-    console.log(`Iniciando jogo contra IA. Nível: ${aiLevel}. Primeiro a jogar: ${firstPlayer}`);
-    // Implementar lógica do jogo contra IA...
-}
-
-function startGameTwoPlayers(firstPlayer) {
-    // Lógica de inicialização do jogo para dois jogadores
-    console.log(`Iniciando jogo entre dois jogadores. Primeiro a jogar: ${firstPlayer}`);
-    // Implementar lógica do jogo de dois jogadores...
-}
 
 // Referência ao botão "Desistir do Jogo"
 const quitGameButton = document.getElementById("quit-game");
@@ -656,7 +743,15 @@ function quitGame() {
 // Funções para mostrar/ocultar configurações e comandos
 function toggleConfig() {
     const configArea = document.getElementById("config-area");
-    configArea.style.display = configArea.style.display === "none" ? "block" : "none";
+    const alertMessage = document.getElementById("alertMessage");
+
+    const isHidden = configArea.style.display === "none";
+    configArea.style.display = isHidden ? "block" : "none";
+    
+    // Exibe a mensagem no centro do tabuleiro se as configurações estiverem sendo abertas
+    if (isHidden) {
+        alertMessage.style.display = "block";
+    }
 }
 
 function toggleCommands() {
@@ -664,9 +759,9 @@ function toggleCommands() {
     commands.style.display = commands.style.display === "none" ? "block" : "none";
 }
 
-function viewScores() {
-    alert("Visualizando as classificações!");
-}
+
+/*--------------------------------------------------------------------------------------IDENTIFICAÇÃO--------------------------------------------------------------------------------------*/
+
 
 // Função para alternar a área de identificação
 function toggleAuth() {
@@ -700,4 +795,8 @@ function showInstructionContent(topicId) {
     if (selectedContent) {
         selectedContent.style.display = 'block';
     }
+}
+
+function closeAlert() {
+    document.getElementById('alertMessage').style.display = 'none';
 }

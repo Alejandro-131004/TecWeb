@@ -28,7 +28,12 @@
         </form>
     </div>
 
-    <button id="configButton" class="config-button" onclick="toggleConfig()">Configurações de Jogo</button>
+    <button id="configButton" class="config-button" onclick="toggleConfig()">Configurações de Jogo</button><br />
+    <div id="alertMessage">
+        <strong>Escolha primeiro todas as configurações que deseja. De seguida clique em <span style="text-decoration: underline;">Iniciar Jogo</span> quando estiver terminado. Divirta-se!!</strong>
+        <span id="closeAlert" style="position: absolute; top: 10px; right: 10px; cursor: pointer;" onclick="closeAlert()">✖</span>
+    </div>
+    
     <div id="config-area" style="display: none;">
         <!-- Opção para definir o tipo de jogo -->
         <label for="game-mode">Modo de Jogo:</label>
@@ -40,7 +45,7 @@
         <!-- Escolher o primeiro jogador -->
         <label for="first-player">Primeiro Jogador:</label>
         <select id="first-player">
-            <option value="red">Red</option>
+            <option value="red">Vermelho</option>
             <option value="blue">Azul</option>
         </select>
         
@@ -56,7 +61,7 @@
         <div>
             <label for="numSquares">Tamanho do tabuleiro:</label>
             <input type="number" id="numSquares" value="3" min="2">
-            <button onclick="startGame()">Iniciar Jogo</button>
+            <button onclick="initializeGame()">Iniciar Jogo</button>
         </div>
     </div>
     
@@ -101,6 +106,7 @@
             <!-- Conteúdo de cada tópico -->
             <div id="instruction-content">
                 <p id="tabuleiro" class="instruction-text" style="display: none;">
+                    <strong>Tabuleiro</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\tabuleiro.png" width="100"> <br />
                     Trilha é um jogo de tabuleiro para dois jogadores. 
                     Joga-se num tabuleiro de quadrados concêntricos. 
@@ -111,6 +117,7 @@
                 </p>
                 
                 <p id="outrosTabuleiros" class="instruction-text" style="display: none;">
+                    <strong>Outros Tabuleiros</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\outros_tabuleiros.png" width="100"> <br />
                     Outro número de quadrados é possível. 
                     O número de casas por quadrado é sempre 8. 
@@ -118,8 +125,9 @@
                     No exemplo acima o tabuleiro tem apenas 2 quadrados. 
                     Mas poderia ter mais de 3, como 4 ou 5.
                 </p>
-
+            
                 <p id="pecas" class="instruction-text" style="display: none;">
+                    <strong>Peças</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\pecas.png" width="300"> <br />
                     Num tabuleiro com n quadrados, cada jogador tem 3 * n peças. 
                     Cada jogador joga com peças de cor diferente das do adversário. 
@@ -128,16 +136,18 @@
                     Peças fora do tabuleiro são agrupadas por cor nos lados esquerdo e direito do tabuleiro. 
                     A imagem mostra um tabuleiro 3 x 3 na situação inicial.
                 </p>
-
+            
                 <p id="moinhos" class="instruction-text" style="display: none;">
+                    <strong>Moinhos</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\moinhos.png" width="100"> <br />
                     Uma sequência de 3 peças da mesma cor é um moinho. 
                     As peças dum moinho têm de estar ao longo duma única linha. 
                     Em linhas verticais ou horizontais, nunca em diagonais. 
                     As peças no tabuleiro acima fazem parte de moinhos, exceto as dos cantos inferior direito (destacadas a laranja).
                 </p>
-
+            
                 <p id="regrasBasicas" class="instruction-text" style="display: none;">
+                    <strong>Regras Básicas</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\regras_basicas.png" width="100"> <br />
                     Jogadores escolhem uma cor e decidem quem joga primeiro. 
                     Inicialmente, o tabuleiro está vazio. 
@@ -146,16 +156,18 @@
                     Fase 2 - Mover as peças (move). 
                     No exemplo acima, o tabuleiro está entre as 2 fases.
                 </p>
-
+            
                 <p id="porPecas" class="instruction-text" style="display: none;">
+                    <strong>Por Peças</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\por_pecas.png" width="300"> <br />
                     Jogadores põem alternadamente uma peça sua numa casa livre. 
                     Podem ser criados moinhos (mas não é vantajoso). 
                     Quando todas as peças estão colocadas, termina esta fase. 
                     No exemplo acima, cada jogador já colocou uma peça.
                 </p>
-
+            
                 <p id="moverPecas" class="instruction-text" style="display: none;">
+                    <strong>Mover Peças</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\mover_pecas.png" width="100"> <br />
                     Esta fase começa logo após todas as peças estarem colocadas. 
                     Cada jogador move alternadamente uma peça da sua cor. 
@@ -163,8 +175,9 @@
                     Casas têm de estar ligadas por uma linha vertical ou horizontal. 
                     No exemplo acima, a peça azul no canto superior esquerdo pode mover-se para a casa destacada a laranja.
                 </p>
-
+            
                 <p id="capturarPecas" class="instruction-text" style="display: none;">
+                    <strong>Capturar Peças</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\capturar_pecas.png" width="100"> <br />
                     Criando um moinho, pode capturar uma peça do adversário. 
                     Neste caso, remove uma peça do adversário à sua escolha. 
@@ -172,16 +185,18 @@
                     Uma peça pode retornar à posição da jogada anterior e voltar a formar um moinho na jogada seguinte. 
                     No exemplo, as peças azuis no topo formaram um moinho e o jogador pode capturar a peça vermelha destacada.
                 </p>
-
+            
                 <p id="movimentoLivre" class="instruction-text" style="display: none;">
+                    <strong>Movimento Livre</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\mov_livre.png" width="300"> <br />
                     Inicia-se quando um jogador tiver apenas 3 peças. 
                     Esse jogador passa a poder jogar para qualquer casa livre. 
                     Não está restrito a jogar para casas contíguas. 
                     No exemplo acima, as peças azuis podem jogar livremente e, com a jogada destacada, farão um moinho.
                 </p>
-
+            
                 <p id="fimDoJogo" class="instruction-text" style="display: none;">
+                    <strong>Fim do Jogo</strong><br />
                     <img src="C:\Users\aleja\OneDrive\Documentos\GitHub\TecWeb\images\fim_do_jogo.png" width="300"> <br />
                     O jogo termina com a derrota do/a jogador(a) que tiver apenas 2 peças, 
                     um empate se não for possível realizar uma jogada válida, 
@@ -189,6 +204,7 @@
                     No exemplo acima, ganham as peças azuis.
                 </p>
             </div>
+            
 
 
     <script src="script.js"></script>
