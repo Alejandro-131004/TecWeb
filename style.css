@@ -74,7 +74,7 @@
 
 /* Estilo do botão Configuração e Identificação */
 .config-button, .commands-button {
-    background-color: #007BFF;
+    background-color: #333;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -99,14 +99,14 @@
 }
 
 .commands-button:hover {
-    background-color: #45a049;
+    background-color: #003f7f;
     transform: scale(1.05);
 }
 
 /* Estilo do botão de login */
 .login-button {
     padding: 10px 20px;
-    background-color: #0056b3; /* Azul escuro */
+    background-color: #333; /* Azul escuro */
     color: white;
     border: none;
     border-radius: 5px;
@@ -133,7 +133,7 @@
 #alertMessage {
     display: none;
     position: absolute;
-    top: 50%;
+    top: 8%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 40%; /* Ajusta a largura em relação ao tabuleiro */

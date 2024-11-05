@@ -31,20 +31,3 @@
     font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-body {
-    background: url("../Nine-Mens-Morris/background.jpg") no-repeat center center fixed;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: 100%;
-    color: #FFF;
-    margin: 0;
-    padding: 0;
-}
-
-canvas {
-    z-index: -1;
-    margin: auto;
-    background: url("main.png");
-    border: 1px solid #d3d3d3;
-}
