@@ -11,8 +11,46 @@ const boardElement = document.getElementById('board');
 let movesWithoutMill = 0; // contador de movimentos sem moinho
 let lastMillFormedTurn = 0;
 let humanColor, computerColor;
-let waitingForRemoval = false;
-let waitingForFase2 = false;
+var clickSound;
+
+
+
+/*-------------------------------------------------------------------------------------------COMEÇAR O JOGO-------------------------------------------------------------------------------------------*/
+
+function initializeGame() {
+    clickSound = new sound("sound.wav");
+    const alertMessage = document.getElementById("alertMessage");
+    alertMessage.style.display = "none";
+    // Obtém as configurações do jogo a partir do HTML
+    const gameMode = document.getElementById("game-mode").value;
+    const firstPlayer = document.getElementById("first-player").value;
+    const aiLevel = document.getElementById("ai-level").value;
+
+    console.log("Modo de Jogo:", gameMode);
+    console.log("Primeiro Jogador:", firstPlayer);
+    console.log("Nível da IA:", aiLevel);
+
+    // Verifica o modo de jogo e inicializa o jogo conforme a escolha
+    if (gameMode === "computer") {
+        humanColor = firstPlayer; // O jogador humano tem a cor escolhida
+        computerColor = (humanColor === "red") ? "blue" : "red"; // O computador assume a cor oposta
+        startGameWithAI(computerColor, aiLevel);
+    } else {
+        startGameTwoPlayers(firstPlayer);
+    }
+}
+
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function () {
+        this.sound.play();
+    }
+}
 
 
 /*--------------------------------------------------------------------------------IMPLEMENTAÇÃO DO JOGO--------------------------------------------------------------------------------*/
@@ -78,7 +116,6 @@ function generateBoard(numSquares) {
     }
 }
 
-
 function calculatePositions(radius) {
     return [
         { x: -radius, y: -radius },
@@ -118,9 +155,13 @@ function createLine(boardElement, x1, y1, x2, y2) {
 }
 
 function handleCellClick(cell) {
-    if (phase === 1 && !cell.innerHTML) {
+    const [square, index] = cell.id.split('-').slice(1).map(Number);
+
+    // Verificar ocupação diretamente na matriz board
+    if (phase === 1 && board[square][index] === null) {
         placePiece(cell);
-        
+    } else if (phase === 1 && board[square][index] !== null) {
+        removePieceIfValid(cell);
     } else if (phase === 2) {
         handleMove(cell);
     }
@@ -140,58 +181,60 @@ function placePiece(cell) {
         return;
     }
 
-    if(waitingForRemoval===false){
+    
         // Verifica se o jogador atual ainda pode colocar mais peças
-            if ((currentPlayer === 'red' && redPiecesPlaced < maxPieces) ||
-            (currentPlayer === 'blue' && bluePiecesPlaced < maxPieces)) {
-                // Alterar a cor de fundo da célula com base no jogador atual
-                if (currentPlayer === 'red') {
-                    cell.style.backgroundColor = 'red';
-                    redPiecesPlaced++; // Incrementa o número de peças para Red
-                    board[square][index] = 'red'; // Atualiza a matriz do tabuleiro
-                    console.log(`Peça vermelha colocada: square ${square}, index ${index}. Total peças vermelhas: ${redPiecesPlaced}`);
-                } else if (currentPlayer === 'blue') {
-                    cell.style.backgroundColor = 'blue';
-                    bluePiecesPlaced++; // Incrementa o número de peças para Blue
-                    board[square][index] = 'blue'; // Atualiza a matriz do tabuleiro
-                    console.log(`Peça azul colocada: square ${square}, index ${index}. Total peças azuis: ${bluePiecesPlaced}`);
-                }
-
-                // Verifica se uma mill foi formada
-                if (checkForMill(square, index, board, currentPlayer, numSquares)) {
-                    status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
-                    console.log(`Mill formada por ${currentPlayer} em square ${square}, index ${index}`);
-                    // Inicia o processo de seleção de peça do adversário
-                    startRemoveOpponentPiece(); // Chame a função de remoção de peça
-                } else {
-                    // Se não formou uma mill, alterna o jogador imediatamente
-                    togglePlayer();
-                    console.log(`Jogador alternado. Próximo jogador: ${currentPlayer}`);
-                }
+    if ((currentPlayer === 'red' && redPiecesPlaced < maxPieces) ||
+    (currentPlayer === 'blue' && bluePiecesPlaced < maxPieces)) {
+        // Alterar a cor de fundo da célula com base no jogador atual
+        if (currentPlayer === 'red') {
+            cell.style.backgroundColor = 'red';
+            redPiecesPlaced++; // Incrementa o número de peças para Red
+            board[square][index] = 'red'; // Atualiza a matriz do tabuleiro
+            clickSound.play();
+            console.log(`Peça vermelha colocada: square ${square}, index ${index}. Total peças vermelhas: ${redPiecesPlaced}`);
+        } else if (currentPlayer === 'blue') {
+            cell.style.backgroundColor = 'blue';
+            bluePiecesPlaced++; // Incrementa o número de peças para Blue
+            board[square][index] = 'blue'; // Atualiza a matriz do tabuleiro
+            clickSound.play();
+            console.log(`Peça azul colocada: square ${square}, index ${index}. Total peças azuis: ${bluePiecesPlaced}`);
         }
-    } 
+
+        if (redPiecesPlaced === maxPieces && bluePiecesPlaced === maxPieces) {
+            if (checkForMill(square, index, board, currentPlayer, numSquares)) {
+                status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
+                console.log(`Mill formada por ${currentPlayer} em square ${square}, index ${index}`);
+                // Inicia o processo de seleção de peça do adversário
+                startRemoveOpponentPiece_specialCase();
+                
+            } else {
+                startMovingPhase(); // Inicia a Fase 2 (movimento de peças) apenas se nenhum moinho foi formado
+            }
+            
+        }
+
+        // Verifica se uma mill foi formada
+        else if (checkForMill(square, index, board, currentPlayer, numSquares)) {
+            console.log("ni");
+            status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
+            console.log(`Mill formada por ${currentPlayer} em square ${square}, index ${index}`);
+            // Inicia o processo de seleção de peça do adversário
+            startRemoveOpponentPiece(); // Chame a função de remoção de peça
+        } 
+        
+        else {
+            // Se não formou uma mill, alterna o jogador imediatamente
+            togglePlayer();
+            console.log(`Jogador alternado. Próximo jogador: ${currentPlayer}`);
+        }
+    }
+    
     
     else {
         status.textContent = `${currentPlayer} já colocou todas as suas peças.`;
         console.log(`Jogador ${currentPlayer} já colocou todas as suas peças. Red: ${redPiecesPlaced}, Blue: ${bluePiecesPlaced} erro`);
-    }
-
-    // Verifica se todos os jogadores colocaram suas peças para iniciar a Fase 2
-    if (redPiecesPlaced === maxPieces && bluePiecesPlaced === maxPieces) {
-        if (checkForMill(square, index, board, currentPlayer, numSquares)) {
-            console.log("nigggg");
-            status.textContent = `${currentPlayer} formou uma mill! Remova uma peça do adversário.`;
-            console.log(`Mill formada por ${currentPlayer} em square ${square}, index ${index}`);
-            // Inicia o processo de seleção de peça do adversário
-            startRemoveOpponentPiece_specialCase();
-            
-        } else {
-            startMovingPhase(); // Inicia a Fase 2 (movimento de peças) apenas se nenhum moinho foi formado
-        }
-        
-    }
+    }    
 }
-
 
 function togglePlayer() {
     currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
@@ -224,7 +267,6 @@ function checkForMill(square, index, board, currentPlayer, numSquares) {
     for (let line of millLines) {
         let isMill = line.every(cell => board[cell.square][cell.index] === currentPlayer);
         if (isMill) {
-            waitingForRemoval=true;
             return true; // Mill encontrado
         }
     }
@@ -315,14 +357,15 @@ function removePieceIfValid(cell, possibleRemoves) {
     const [square, index] = cell.id.split('-').slice(1).map(Number);
     const opponent = opponentPlayer();
 
+    console.log(`Estado antes do if: board[${square}][${index}] = ${board[square][index]}, opponent = ${opponent}`);
+
     // Verifica se a peça está entre as possíveis para remoção
     const isRemovable = possibleRemoves.some(
         (removable) => removable.square === square && removable.index === index
     );
 
     if (!isRemovable) {
-        console.log("Tens de escolher uma peça do adversário para remover que não pertença a um moinho.");
-        status.textContent = "Tens de escolher uma peça do adversário para remover que não pertença a um moinho.";
+        console.log("A peça não está entre as possíveis para remoção.");
         return false;
     }
 
@@ -331,46 +374,50 @@ function removePieceIfValid(cell, possibleRemoves) {
         // Remove a peça do tabuleiro
         board[square][index] = null;
         cell.style.backgroundColor = "";  // Remove visualmente a peça do tabuleiro
-        console.log(`Peça removida: square ${square}, index ${index}.`);
+        clickSound.play();
+        console.log(`Peça removida com sucesso: square ${square}, index ${index}.`);
         status.textContent = `Peça removida com sucesso. Vez de ${currentPlayer}.`;
-        waitingForRemoval=false;
-        togglePlayer();  // Alterna para o próximo jogador
+        togglePlayer();
         return true;
     } else {
-        // Exibe mensagem se a peça selecionada não for do oponente
-        console.log("Escolha uma peça válida do oponente.");
-        status.textContent = "Escolha uma peça válida do oponente.";
+        // Log para verificar como ele entrou no else
+        console.log(`Erro inesperado: entrou no else. board[${square}][${index}] = ${board[square][index]}, opponent = ${opponent}`);
         return false;
     }
 }
 
+
 function startRemoveOpponentPiece() {
     const possibleRemoves = get_possible_removes(currentPlayer);
 
+    // Verifique se há peças para remover
+    if (possibleRemoves.length === 0) {
+        console.log("Nenhuma peça disponível para remoção.");
+        return;
+    }
     const cells = boardElement.querySelectorAll('.cell');
-
-    // Define o evento de clique para todas as células
+    // Função de evento para tentar remover a peça
     function handleRemovePiece(event) {
         const cell = event.target;
+        
         // Tenta remover a peça e avança o turno apenas se for bem-sucedido
         if (removePieceIfValid(cell, possibleRemoves)) {
-            // Remove os listeners de todas as células após a remoção bem-sucedida
-            cells.forEach(c => c.removeEventListener('click', handleRemovePiece));
-            // Retoma o jogo
+            cells.forEach(c => c.removeEventListener('click', handleRemovePiece)); // Remove os listeners de todas as células
+            clickSound.play();
             status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
-        }
-        else {
-            // Mensagem para manter o turno de remoção
+        } else {
             console.log("Aguarde até que uma peça válida seja removida.");
+            status.textContent = "Aguarde até que uma peça válida seja removida.";
         }
     }
 
-    // Adiciona o listener para remover uma peça do oponente
+    // Adiciona o evento de clique para todas as células
     cells.forEach(cell => {
         cell.addEventListener('click', handleRemovePiece);
     });
-    //waitingForFase2 = true;
 }
+
+
 function startRemoveOpponentPiece_specialCase() {
     const possibleRemoves = get_possible_removes(currentPlayer);
 
@@ -383,12 +430,13 @@ function startRemoveOpponentPiece_specialCase() {
         if (removePieceIfValid(cell, possibleRemoves)) {
             // Remove os listeners de todas as células após a remoção bem-sucedida
             cells.forEach(c => c.removeEventListener('click', handleRemovePiece));
-            // Retoma o jogo
+            clickSound.play();
             startMovingPhase();
         }
         else {
             // Mensagem para manter o turno de remoção
             console.log("Aguarde até que uma peça válida seja removida.");
+            status.textContent = "Aguarde até que uma peça válida seja removida.";
         }
     }
 
@@ -396,9 +444,7 @@ function startRemoveOpponentPiece_specialCase() {
     cells.forEach(cell => {
         cell.addEventListener('click', handleRemovePiece);
     });
-    //waitingForFase2 = true;
 }
-
 
 //saber temporariamente o adversário
 function opponentPlayer() {
@@ -559,6 +605,7 @@ function getAdjacentCells(square, index, numSquares) {
 
 function movePiece(from, to) {
     // Atualiza o estado do tabuleiro
+    clickSound.play();
     board[to.square][to.index] = currentPlayer;
     board[from.square][from.index] = null;
 
@@ -612,12 +659,6 @@ function checkForDraw() {
 function viewScores() {
     alert("Visualizando as classificações!");
 }
-
-
-//funcao all mills
-
-
-
 
 /*-------------------------------------------------------------------------------------------AI-------------------------------------------------------------------------------------------*/
 
@@ -710,31 +751,6 @@ function startGameTwoPlayers(firstPlayer) {
     currentPlayer = firstPlayer; // Define o jogador inicial com base na seleção
     startGame(firstPlayer); // Passa o jogador inicial para a função startGame
     console.log(`Iniciando jogo entre dois jogadores. Primeiro a jogar: ${firstPlayer}`);
-}
-
-
-/*-------------------------------------------------------------------------------------------COMEÇAR O JOGO-------------------------------------------------------------------------------------------*/
-
-function initializeGame() {
-    const alertMessage = document.getElementById("alertMessage");
-    alertMessage.style.display = "none";
-    // Obtém as configurações do jogo a partir do HTML
-    const gameMode = document.getElementById("game-mode").value;
-    const firstPlayer = document.getElementById("first-player").value;
-    const aiLevel = document.getElementById("ai-level").value;
-
-    console.log("Modo de Jogo:", gameMode);
-    console.log("Primeiro Jogador:", firstPlayer);
-    console.log("Nível da IA:", aiLevel);
-
-    // Verifica o modo de jogo e inicializa o jogo conforme a escolha
-    if (gameMode === "computer") {
-        humanColor = firstPlayer; // O jogador humano tem a cor escolhida
-        computerColor = (humanColor === "red") ? "blue" : "red"; // O computador assume a cor oposta
-        startGameWithAI(computerColor, aiLevel);
-    } else {
-        startGameTwoPlayers(firstPlayer);
-    }
 }
 
 /*-------------------------------------------------------------------------------------------BOTÕES-------------------------------------------------------------------------------------------*/
@@ -863,57 +879,4 @@ function showInstructionContent(topicId) {
 
 function closeAlert() {
     document.getElementById('alertMessage').style.display = 'none';
-}
-
-
-// Function to get all opponent pieces on the board
-function getOpponentPieces(opponentColor) {
-    let opponentPieces = [];
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board[i].length; j++) {
-            if (board[i][j] === opponentColor) {
-                opponentPieces.push({ x: i, y: j });
-            }
-        }
-    }
-    return opponentPieces;
-}
-
-// Function to remove a piece from the board, ensuring it's an opponent piece
-function removePiece(x, y, currentPlayer) {
-    const opponentColor = (currentPlayer === "red") ? "blue" : "red";
-    
-    if (board[x][y] !== opponentColor) {
-        status.textContent = "Invalid removal. Choose an opponent's piece.";
-        return false;  // Indicate that the removal was not successful
-    }
-
-    board[x][y] = null;  // Remove the piece
-    status.textContent = `${opponentColor} piece removed at (${x}, ${y})`;
-    return true;  // Indicate successful removal
-}
-
-// Function to handle computer's removal of an opponent's piece after forming a mill
-function computerRemovePiece() {
-    const opponentPieces = getOpponentPieces(humanColor);  // Get all human pieces
-
-    if (opponentPieces.length === 0) return;  // No pieces to remove
-    
-    // Choose a random piece to remove
-    const randomIndex = Math.floor(Math.random() * opponentPieces.length);
-    const pieceToRemove = opponentPieces[randomIndex];
-    
-    // Remove the chosen piece
-    removePiece(pieceToRemove.x, pieceToRemove.y, computerColor);
-}
-
-// Update function to handle mill formation
-function checkAndRemoveOpponentPiece(currentPlayer) {
-    if (millFormed) {  // Assuming 'millFormed' is set to true when a mill is detected
-        if (currentPlayer === computerColor) {
-            setTimeout(computerRemovePiece, 500);  // Small delay for computer's removal
-        } else {
-            status.textContent = "Select an opponent's piece to remove";
-        }
-    }
 }
