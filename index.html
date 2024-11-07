@@ -10,12 +10,9 @@
 <body>
     <h1>Jogo do Moinho</h1>
     <h3 id="status">Bem-vindo ao Jogo do Moinho!</h3> <!-- Subheading como subtítulo -->
-
-    <!-- Botão para Identificação -->
-    <button id="authButton" class="config-button" onclick="toggleAuth()">Identificação</button><br />
     
     <!-- Área de Identificação (sem impacto no funcionamento do jogo) -->
-    <div id="identification" style="display: none; margin: 20px 0;">
+    <div id="identification" style="display: block; margin: 20px 0;">
         <h2>Autenticação do Jogador</h2>
         <form id="login-form" onsubmit="authenticateUser(event)">
             <label for="username">Identificador:</label>
@@ -28,11 +25,7 @@
         </form>
     </div>
 
-    <button id="configButton" class="config-button" onclick="toggleConfig()">Configurações de Jogo</button><br />
-    <div id="alertMessage">
-        <strong>Escolha primeiro todas as configurações que deseja. De seguida, clique em <span style="text-decoration: underline;">Iniciar Jogo</span> quando estiver terminado. Divirta-se!!</strong>
-        <span id="closeAlert" style="position: absolute; top: 10px; right: 10px; cursor: pointer;" onclick="closeAlert()">✖</span>
-    </div>
+    <button id="quit-game" class="config-button" style="display: none;" onclick="quitGame()">Desistir do Jogo</button>
     
     <div id="config-area" style="display: none;">
         <!-- Opção para definir o tipo de jogo -->
@@ -64,6 +57,8 @@
             <button onclick="initializeGame()">Iniciar Jogo</button>
         </div>
     </div>
+
+    <div id="pieceStorage" style="position: relative; width: 800px; height: 200px;"></div>
     
     <div id="board"></div>
     
@@ -72,9 +67,6 @@
         <div id="commands" style="display: none;">
             <div>
                 <button id="instructionsBtn" onclick="openInstructions()">Instruções</button>
-            </div>
-            <div>
-                <button id="quit-game" onclick="quitGame()">Desistir do Jogo</button>
             </div>
             <div>
                 <button id="view-scores" onclick="viewScores()">Visualizar as Classificações</button>

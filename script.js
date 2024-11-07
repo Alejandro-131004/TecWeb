@@ -14,14 +14,18 @@ let humanColor, computerColor;
 var clickSound;
 let waitingForRemoval = false;
 let win=false;
+let pecas_fora_red;
+let pecas_fora_blue;
 
 
-/*-------------------------------------------------------------------------------------------COMEÇAR O JOGO-------------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------------COMEÇAR O JOGO----------------------------------------------------------------------------------*/
 
 function initializeGame() {
     clickSound = new sound("sound.wav");
-    const alertMessage = document.getElementById("alertMessage");
-    alertMessage.style.display = "none";
+    document.getElementById('quit-game').style.display = 'block';
+    document.getElementById('config-area').style.display = 'none';
+    
     // Obtém as configurações do jogo a partir do HTML
     const gameMode = document.getElementById("game-mode").value;
     const firstPlayer = document.getElementById("first-player").value;
@@ -58,6 +62,9 @@ function sound(src) {
 
 function startGame(firstPlayer) {
     const numSquares = parseInt(document.getElementById('numSquares').value);
+    pecas_fora_red=numSquares*3-1;
+    pecas_fora_blue=numSquares*3-1;
+
 
     if (numSquares < 2) {
         status.textContent = "Número inválido. Escolha um número maior que 2.";
@@ -66,6 +73,7 @@ function startGame(firstPlayer) {
 
     resetBoard();
     generateBoard(numSquares);
+    createPieceStorage(numSquares);
 
     board = Array.from({ length: numSquares }, () => Array(8).fill(null));
 
@@ -75,10 +83,14 @@ function startGame(firstPlayer) {
     bluePiecesPlaced = 0;
 
     currentPlayer = firstPlayer; // Define o jogador inicial
-    status.textContent = `Vez de ${firstPlayer.charAt(0).toUpperCase() + firstPlayer.slice(1)}`;
+    if (win===false){
+        status.textContent = `Vez de ${firstPlayer.charAt(0).toUpperCase() + firstPlayer.slice(1)}`;
+    }
+
 
     maxPieces = getNumberOfPieces(numSquares) / 2;
 }
+
 
 function generateBoard(numSquares) {
     board = [];  // Inicializa o tabuleiro como uma matriz vazia
@@ -91,7 +103,7 @@ function generateBoard(numSquares) {
     // Também cria visualmente o tabuleiro na interface
     boardElement.innerHTML = ''; // Limpar tabuleiro anterior
     const boardCenter = 400; // Centro do tabuleiro (800px / 2)
-    const maxRadius = 300; // Raio máximo ajustado para o quadrado maior
+    const maxRadius = 400; // Raio máximo ajustado para o quadrado maior
     
 
     for (let square = 0; square < numSquares; square++) {
@@ -154,6 +166,62 @@ function createLine(boardElement, x1, y1, x2, y2) {
     boardElement.appendChild(line);
 }
 
+function createPieceStorage(numSquares) {
+    const pieceStorageElement = document.getElementById('pieceStorage');
+    pieceStorageElement.innerHTML = ''; // Limpa peças anteriores
+
+    const piecesPerColumn = 3; // Máximo de peças por coluna
+    const bluePieces = numSquares * piecesPerColumn;
+    const redPieces = numSquares * piecesPerColumn;
+
+    // Ajustes das posições iniciais
+    const blueStartX = 500; // Mais à esquerda
+    const redStartX = 1450;  // Mais à direita
+    const startY = 700; // Posição vertical inicial
+
+    for (let i = 0; i < bluePieces; i++) {
+        const piece = document.createElement('div');
+        piece.classList.add('piece', 'blue-piece');
+        piece.style.position = 'absolute';
+
+        // Ajuste para organizar da direita para a esquerda
+        piece.style.left = `${blueStartX - Math.floor(i / piecesPerColumn) * 40}px`;
+        piece.style.top = `${startY + (i % piecesPerColumn) * 40}px`;
+        piece.id = `blue-piece-${i}`;
+        pieceStorageElement.appendChild(piece);
+    }
+
+    for (let i = 0; i < redPieces; i++) {
+        const piece = document.createElement('div');
+        piece.classList.add('piece', 'red-piece');
+        piece.style.left = `${redStartX + Math.floor(i / piecesPerColumn) * 40}px`;
+        piece.style.top = `${startY + (i % piecesPerColumn) * 40}px`;
+        piece.id = `red-piece-${i}`;
+        pieceStorageElement.appendChild(piece);
+    }
+}
+
+
+
+function retirarPeca(cor, indice) {
+    const piece = document.getElementById(`${cor}-piece-${indice}`);
+    if (piece) {
+        piece.style.visibility = 'hidden';
+    }
+}
+
+// Função para repor uma peça no armazenamento (mostrar a peça novamente)
+function reporPeca(cor, indice) {
+    const piece = document.getElementById(`${cor}-piece-${indice}`);
+    if (piece) {
+        console.log(`Repondo a peça: ${cor}-piece-${indice}`);
+        piece.style.visibility = 'visible';
+    } else {
+        console.error(`Peça não encontrada: ${cor}-piece-${indice}`);
+    }
+}
+
+
 function handleCellClick(cell) {
     const [square, index] = cell.id.split('-').slice(1).map(Number);
     console.log("O valor de waitingForRemoval handle é:", waitingForRemoval);
@@ -186,10 +254,16 @@ function placePiece(cell) {
     if (currentPlayer === 'red' && redPiecesPlaced < maxPieces) {
         cell.style.backgroundColor = 'red';
         redPiecesPlaced++;
+        retirarPeca('red',pecas_fora_red );
+        pecas_fora_red--;
         board[square][index] = 'red';
+
     } else if (currentPlayer === 'blue' && bluePiecesPlaced < maxPieces) {
         cell.style.backgroundColor = 'blue';
         bluePiecesPlaced++;
+        retirarPeca('blue',pecas_fora_blue );
+        console.log("valor de pecas_fora_blue ",pecas_fora_blue);
+        pecas_fora_blue--;
         board[square][index] = 'blue';
     }
 
@@ -201,9 +275,8 @@ function placePiece(cell) {
 
     // Verificar se é a última jogada de colocação
     const isFinalPlacement = redPiecesPlaced === maxPieces && bluePiecesPlaced === maxPieces;
-    console.log("ni");
-    console.log(isFinalPlacement);
 
+    
     if (isMillFormed) {
         waitingForRemoval = true;
         // Atualizar o status com a mensagem do moinho
@@ -229,15 +302,21 @@ function togglePlayer() {
     currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
     status.textContent = `Vez de ${currentPlayer}.`;
     
+    
+    
+    
     updatePieceCount(); 
 }
 
 function updatePieceCount() {
-    status.textContent = `
+    if (win===false){
+        status.textContent = `
         Vez de ${currentPlayer}. 
         Red: ${redPiecesPlaced}/${maxPieces} peças colocadas. 
         Blue: ${bluePiecesPlaced}/${maxPieces} peças colocadas.
     `;
+    }
+    
 }
 
 function getNumberOfPieces(numSquares) {
@@ -362,24 +441,37 @@ function removePieceIfValid(cell, possibleRemoves) {
 
     // Verifica se a célula selecionada é uma peça do oponente
     if (board[square][index] === opponent) {
+            if (opponent==='blue'){
+                pecas_fora_blue++;
+                reporPeca('blue',pecas_fora_blue);
+                
+            }
+            else{
+                pecas_fora_red++;
+                reporPeca('red',pecas_fora_red);
+                
+
+            }
         // Remove a peça do tabuleiro
         board[square][index] = null;
         cell.style.backgroundColor = "";  // Remove visualmente a peça do tabuleiro
         clickSound.play();
+        
         console.log(`Peça removida com sucesso: square ${square}, index ${index}.`);
         status.textContent = `Peça removida com sucesso. Vez de ${currentPlayer}.`;
         waitingForRemoval = false;
-        console.log("O valor de waitingForRemoval é posto falso:", waitingForRemoval);
+        
         if(phase===2){
             checkEndGameConditions();
         }
         togglePlayer();
         return true;
     } else {
-        console.log(`Erro inesperado: entrou no else. board[${square}][${index}] = ${board[square][index]}, opponent = ${opponent}`);
+        
         return false;
     }
 }
+
 
 function startRemoveOpponentPiece() {
     const possibleRemoves = get_possible_removes(currentPlayer); // Movimentos possiveis para remoção bla bla
@@ -400,7 +492,7 @@ function startRemoveOpponentPiece() {
             console.log("Sim, esta merda esta a rodar aqui");
             cells.forEach(c => c.removeEventListener('click', handleRemovePiece)); // Remove os listeners de todas as células
             clickSound.play();
-            if (win=false){
+            if (win===false){
                 status.textContent = `Vez de ${currentPlayer}. Continue jogando start!`;
             }
             
@@ -417,7 +509,7 @@ function startRemoveOpponentPiece() {
 }
 
 function startRemoveOpponentPiece_specialCase() {
-    console.log("entrou no special");
+    
     const possibleRemoves = get_possible_removes(currentPlayer);
 
     const cells = boardElement.querySelectorAll('.cell');
@@ -434,7 +526,6 @@ function startRemoveOpponentPiece_specialCase() {
         }
         else {
             // Mensagem para manter o turno de remoção
-            console.log("Tens de escolher uma peça do adversário para remover");
             status.textContent = "Tens de escolher uma peça do adversário para remover";
         }
     }
@@ -459,22 +550,28 @@ function startMovingPhase() {
 //fase 2 de mover pecas 
 function isMoveValid(from, to, numSquares) {
     const playerPieces = board.flat().filter(piece => piece === currentPlayer).length;
-
+    const playerPieces_oponent = board.flat().filter(piece => piece === opponentPlayer).length;
+    
     // Se o jogador tem exatamente 3 peças, ele pode se mover para qualquer célula livre
     if (playerPieces === 3) {
+        if (playerPieces_oponent===3){
+            console.log("entrei ihihih");
+            movesWithoutMill++;
+        }
+
+        
         return board[to.square][to.index] === null; // Verifica se a célula de destino está vazia
     }
 
     // Se o jogador tem mais de 3 peças, ele só pode se mover para células adjacentes
     const adjacentCells = getAdjacentCells(from.square, from.index, numSquares);
-    console.log(`Células adjacentes de square: ${from.square}, index: ${from.index}`, adjacentCells);
-    console.log(`Tentando mover para square: ${to.square}, index: ${to.index}`);
-
+    
     // Verifica se a célula de destino é adjacente e está vazia
     return adjacentCells.some(cell => 
         cell.square === to.square && cell.index === to.index && board[to.square][to.index] === null
     );
 }
+
 
 function handleMove(cell) {
     if (phase !== 2 || waitingForRemoval) return; // Verifica se estamos na Fase 2
@@ -525,8 +622,8 @@ function handleMove(cell) {
             }
 
             // Verifica condições de fim de jogo ou empate
-            checkEndGameConditions();
             checkForDraw();
+            checkEndGameConditions();
         } else {
             status.textContent = `Movimento inválido. Escolha uma casa vazia e contígua.`;
         }
@@ -668,22 +765,21 @@ function checkForDraw() {
     const redPieces = board.flat().filter(piece => piece === 'red').length;
     const bluePieces = board.flat().filter(piece => piece === 'blue').length;
 
-    // 1. Verifica se ambos os jogadores têm 3 peças
-    if (redPieces === 3 && bluePieces === 3) {
+    // 1. Verifica se passaram 10 movimentos sem formação de moinho
+    if (movesWithoutMill ===10) {
+        status.textContent = "Empate! Foram feitas 10 jogadas com 3 peças em cada jogador"
+        endGame();
 
-        // 2. Verifica se passaram 10 movimentos sem formação de moinho
-        if (movesWithoutMill >= 10) {
-
-            // 3. Verifica se ambos os jogadores não têm jogadas válidas
-            const redHasMoves = hasValidMoves('red');
-            const blueHasMoves = hasValidMoves('blue');
+    // 2. Verifica se ambos os jogadores não têm jogadas válidas
+    const redHasMoves = hasValidMoves('red');
+    const blueHasMoves = hasValidMoves('blue');
             
-            if (!redHasMoves && !blueHasMoves) {
-                status.textContent = "Empate! Ambos os jogadores não têm movimentos válidos.";
-                endGame();
-                return;
-            }
-        }
+    if (!redHasMoves && !blueHasMoves) {
+        status.textContent = "Empate! Ambos os jogadores não têm movimentos válidos.";
+        endGame();
+        return;
+    }
+        
     }
 }
 
@@ -705,6 +801,12 @@ function viewScores() {
     alert("Visualizando as classificações!");
 }
 
+function startGameTwoPlayers(firstPlayer) {
+    currentPlayer = firstPlayer; // Define o jogador inicial com base na seleção
+    startGame(firstPlayer); // Passa o jogador inicial para a função startGame
+    console.log(`Iniciando jogo entre dois jogadores. Primeiro a jogar: ${firstPlayer}`);
+}
+
 /*-------------------------------------------------------------------------------------------AI-------------------------------------------------------------------------------------------*/
 
 // Funções de exemplo para iniciar o jogo
@@ -713,7 +815,7 @@ function startGameWithAI(firstPlayer, aiLevel) {
     startGame(firstPlayer); // Configura o tabuleiro e variáveis
 
     if (currentPlayer === computerColor) {
-        makeRandomMove(); // Computador faz a primeira jogada se for o jogador inicial
+        makeRandomMove(aiLevel); // Computador faz a primeira jogada se for o jogador inicial
     }
 }
 
@@ -727,17 +829,12 @@ function togglePlayerAI() {
     }
 }
 
-function makeRandomMove() {
-    const availableMoves = [];
-    for (let square = 0; square < board.length; square++) {
-        for (let index = 0; index < board[square].length; index++) {
-            if (board[square][index] === null) {
-                availableMoves.push({ square, index });
-            }
-        }
-    }
+function makeRandomMove(difficulty) {
+    const availableMoves = availablemoves();
+    
 
     if (availableMoves.length > 0) {
+        if(difficulty === "easy"){
         const randomIndex = Math.floor(Math.random() * availableMoves.length);
         const { square, index } = availableMoves[randomIndex];
         board[square][index] = computerColor; // Coloca a peça do computador
@@ -748,8 +845,52 @@ function makeRandomMove() {
             removePlayerPieceAI();
         } else {
             togglePlayerAI(); // Alterna para o jogador humano
+            }
+        }
+        else if(difficulty === "medium" || difficulty === "hard" ){
+            for(i in availableMoves){
+                if(checkForMill(i.square,i.index,board,computerColor,board.length))
+                    status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
+                    removePlayerPieceAI();
+            }
+            const randomIndex = Math.floor(Math.random() * availableMoves.length);
+            const { square, index } = availableMoves[randomIndex];
+            board[square][index] = computerColor; // Coloca a peça do computador
+            document.getElementById(`cell-${square}-${index}`).style.backgroundColor = computerColor;
+            togglePlayerAI();
         }
     }
+
+}
+
+function availablemoves(){
+    const availableMoves = [];
+    const computerPieces = [];
+    let posiblemoves = [];
+    if (phase === 1){
+        for (let square = 0; square < board.length; square++) {
+            for (let index = 0; index < board[square].length; index++) {
+                if (board[square][index] === null) {
+                    availableMoves.push({ square, index });
+                }}}}
+    if(phase === 2){
+        for (let square = 0; square < board.length; square++) {
+            for (let index = 0; index < board[square].length; index++) {
+                if (board[square][index] === computerColor) {
+                    computerPieces.push({ square, index });
+                }
+            }
+        }
+        for (let i in computerPieces){
+            posiblemoves = getAdjacentCells(i.square, i.index, numSquares);
+            for(let t in posiblemoves){
+                if(isMoveValid(i,t,numSquares)){
+                    availableMoves.push(t);
+                }
+            }
+        }
+    }
+    return availableMoves
 }
 
 function removePlayerPieceAI() {
@@ -791,13 +932,6 @@ function computerRemoveOpponentPiece() {
         console.log("Nenhuma peça disponível para remoção.");
     }
 }
-
-function startGameTwoPlayers(firstPlayer) {
-    currentPlayer = firstPlayer; // Define o jogador inicial com base na seleção
-    startGame(firstPlayer); // Passa o jogador inicial para a função startGame
-    console.log(`Iniciando jogo entre dois jogadores. Primeiro a jogar: ${firstPlayer}`);
-}
-
 /*-------------------------------------------------------------------------------------------BOTÕES-------------------------------------------------------------------------------------------*/
 
 
@@ -855,12 +989,15 @@ quitGameButton.addEventListener("click", function () {
 
 // Função para desistir do jogo
 function quitGame() {
+    console.log("sjdhbs");
     const confirmQuit = confirm("Tem certeza de que deseja desistir do jogo?");
     if (confirmQuit) {
         console.log("Jogo finalizado pelo jogador.");
         alert("Você desistiu do jogo.");
-        startGame();
+        document.getElementById("config-area").style.display="block";
+        document.getElementById("quit-game").style.display="none";
         document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
+        generateBoard(numSquares);
     }
     
 }
@@ -868,22 +1005,17 @@ function quitGame() {
 // Funções para mostrar/ocultar configurações e comandos
 function toggleConfig() {
     const configArea = document.getElementById("config-area");
-    const alertMessage = document.getElementById("alertMessage");
-
     const isHidden = configArea.style.display === "none";
     configArea.style.display = isHidden ? "block" : "none";
     
-    // Exibe a mensagem no centro do tabuleiro se as configurações estiverem sendo abertas
-    if (isHidden) {
-        alertMessage.style.display = "block";
-    }
+    document.getElementById("quit-game").style.display="none";
+
 }
 
 function toggleCommands() {
     const commands = document.getElementById("commands");
     commands.style.display = commands.style.display === "none" ? "block" : "none";
 }
-
 
 /*--------------------------------------------------------------------------------------IDENTIFICAÇÃO--------------------------------------------------------------------------------------*/
 
@@ -898,13 +1030,16 @@ function toggleAuth() {
     }
 }
 
-// Função para autenticar o jogador
+// Função para autenticar o jogador e exibir o menu de configurações
 function authenticateUser(event) {
-    event.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    // Implementar a lógica de autenticação
-    alert(`Usuário: ${username}, Senha: ${password}`);
+    event.preventDefault(); // Impede o envio real do formulário
+
+    // Oculta a área de identificação e exibe as configurações de jogo
+    document.getElementById('identification').style.display = 'none';
+    document.getElementById('config-area').style.display = 'block';
+
+    // Atualiza o status para "Configurações de Jogo"
+    document.getElementById('status').textContent = "Configurações de Jogo";
 }
 
 
@@ -920,8 +1055,4 @@ function showInstructionContent(topicId) {
     if (selectedContent) {
         selectedContent.style.display = 'block';
     }
-}
-
-function closeAlert() {
-    document.getElementById('alertMessage').style.display = 'none';
 }

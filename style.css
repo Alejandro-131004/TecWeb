@@ -1,10 +1,11 @@
-/* Estilo para o tabuleiro */
 #board {
     position: relative;
     width: 800px;
-    height: 750px;
+    height: 800px;
     margin: 30px auto;
-    background-color: rgb(239, 221, 170);
+    background-color: rgba(203, 203, 175, 0.516);
+    top: -200px; /* Ajuste para mover o tabuleiro mais para cima */
+    margin-top: 0;
 }
 
 /* Células do tabuleiro */
@@ -51,7 +52,7 @@
 .modal-content {
     background-color: #fff;
     margin: 10% auto;
-    padding: 20px;
+    padding: 1px;
     width: 80%;
     max-width: 500px;
     border-radius: 5px;
@@ -129,37 +130,23 @@
     border-radius: 5px;
 }
 
-/* Estilo para a mensagem de alerta */
-#alertMessage {
-    display: none;
+#pieceStorage {
+    position: relative;
+    width: 100%;
+    height: 200px;
+}
+
+.piece {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
     position: absolute;
-    top: 8%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40%; /* Ajusta a largura em relação ao tabuleiro */
-    background-color: rgba(255, 0, 0, 0.9); /* Fundo vermelho com leve transparência */
-    color: white;
-    border: 3px solid #ffeb3b; /* Borda amarela chamativa */
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 25px;
-    z-index: 1000;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Sombra para destaque */
 }
 
-#closeAlert {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 15px; /* Tamanho reduzido da cruz */
-    color: white;
-    cursor: pointer; /* Adiciona o cursor pointer */
+.blue-piece {
+    background-color: blue;
 }
 
-
-#closeAlert:hover {
-    color: #ffdddd; /* Cor quando o mouse está sobre o botão */
+.red-piece {
+    background-color: red;
 }
-
