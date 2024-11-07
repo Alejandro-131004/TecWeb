@@ -84,6 +84,7 @@ function startGame(firstPlayer) {
 
     currentPlayer = firstPlayer; // Define o jogador inicial
     if (win===false){
+
         status.textContent = `Vez de ${firstPlayer.charAt(0).toUpperCase() + firstPlayer.slice(1)}`;
     }
 
@@ -201,8 +202,6 @@ function createPieceStorage(numSquares) {
     }
 }
 
-
-
 function retirarPeca(cor, indice) {
     const piece = document.getElementById(`${cor}-piece-${indice}`);
     if (piece) {
@@ -300,7 +299,10 @@ function placePiece(cell) {
 
 function togglePlayer() {
     currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
-    status.textContent = `Vez de ${currentPlayer}.`;
+    if (win===false){
+        status.textContent = `Vez de ${currentPlayer}.`;
+    }
+    
     
     
     
@@ -493,7 +495,7 @@ function startRemoveOpponentPiece() {
             cells.forEach(c => c.removeEventListener('click', handleRemovePiece)); // Remove os listeners de todas as células
             clickSound.play();
             if (win===false){
-                status.textContent = `Vez de ${currentPlayer}. Continue jogando start!`;
+                status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
             }
             
         } else {

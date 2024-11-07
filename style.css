@@ -52,7 +52,7 @@
 .modal-content {
     background-color: #fff;
     margin: 10% auto;
-    padding: 1px;
+    padding: 20px;
     width: 80%;
     max-width: 500px;
     border-radius: 5px;
@@ -74,7 +74,7 @@
 }
 
 /* Estilo do botão Configuração e Identificação */
-.config-button, .commands-button {
+.config-button {
     background-color: #333;
     color: white;
     padding: 10px 20px;
@@ -86,22 +86,39 @@
     margin-bottom: 10px; /* Dá espaço entre os botões e outros elementos */
 }
 
-.config-button:hover, .commands-button:hover {
+.config-button:hover{
     background-color: #0056b3;
     transform: scale(1.05); /* Efeito de leve aumento ao passar o mouse */
 }
+/* Ajuste para a área de comandos */
+#commands {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espaço entre os botões */
+}
 
-/* Estilo do botão de comandos */
-.commands-button {
-    background-color: #333; /* Preto */
+/* Estilo para os botões "?" e "🏆" */
+#instructionsBtn, #view-scores {
+    font-size: 24px; /* Aumenta o tamanho dos ícones */
+    width: 50px;      /* Largura maior para destacar */
+    height: 50px;     /* Altura maior para destacar */
+    background-color: #333; /* Fundo escuro */
     color: white;
-    margin-top: -50px; /* Ajuste grande para subir visivelmente */
+    border: none;
+    border-radius: 50%; /* Deixa os botões redondos */
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     transition: background-color 0.3s, transform 0.1s;
 }
 
-.commands-button:hover {
-    background-color: #003f7f;
-    transform: scale(1.05);
+#instructionsBtn:hover, #view-scores:hover {
+    background-color: #0056b3; /* Cor de fundo ao passar o mouse */
+    transform: scale(1.1); /* Leve aumento ao passar o mouse */
 }
 
 /* Estilo do botão de login */

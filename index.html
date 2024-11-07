@@ -62,18 +62,12 @@
     
     <div id="board"></div>
     
-    <div style="padding: 10px;">
-        <button id="commandsBtn" class="commands-button" onclick="toggleCommands()">Comandos</button>
-        <div id="commands" style="display: none;">
-            <div>
-                <button id="instructionsBtn" onclick="openInstructions()">Instruções</button>
-            </div>
-            <div>
-                <button id="view-scores" onclick="viewScores()">Visualizar as Classificações</button>
-            </div>
 
-        </div>
+    <div id="commands" style="position: absolute; top: 10px; right: 10px;">
+        <button id="instructionsBtn" onclick="openInstructions()">?</button>
+        <button id="view-scores" onclick="viewScores()">🏆</button>
     </div>
+
     
      <!-- Modal para as Instruções com Tópicos -->
      <div id="instructionsModal" class="modal" style="display: none;">
