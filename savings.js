@@ -527,3 +527,40 @@ function checkEndGameConditions() {
         //phase = 3;
     //Ss}
 }
+
+
+function removePieceIfValid(cell, possibleRemoves) {
+    const [square, index] = cell.id.split('-').slice(1).map(Number);
+    const opponent = opponentPlayer();
+    if (!Array.isArray(possibleRemoves)) {
+        console.error("Erro: possibleRemoves está indefinido ou não é um array.", possibleRemoves);
+        return false;
+    }
+
+    // Verifica se a peça está entre as possíveis para remoção
+    const isRemovable = possibleRemoves.some(
+        (removable) => removable.square === square && removable.index === index
+    );
+
+    if (!isRemovable) {
+        console.log("A peça não está entre as possíveis para remoção.");
+        return false;
+    }
+
+    // Verifica se a célula selecionada é uma peça do oponente
+    if (board[square][index] === opponent) {
+        // Remove a peça do tabuleiro
+        board[square][index] = null;
+        cell.style.backgroundColor = "";  // Remove visualmente a peça do tabuleiro
+        clickSound.play();
+        console.log(`Peça removida com sucesso: square ${square}, index ${index}.`);
+        status.textContent = `Peça removida com sucesso. Vez de ${currentPlayer}.`;
+        waitingForRemoval = false;
+        console.log("O valor de waitingForRemoval é posto falso:", waitingForRemoval);
+        togglePlayer();
+        return true;
+    } else {
+        console.log(`Erro inesperado: entrou no else. board[${square}][${index}] = ${board[square][index]}, opponent = ${opponent}`);
+        return false;
+    }
+}
