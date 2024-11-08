@@ -775,27 +775,13 @@ function endGame(winner) {
             break;
     }
 
+    // Display the result message
     alert(resultMessage);
-    const confirmQuit = confirm("Deseja jogar novamente?");
-    status.textContent = "";
-    if (confirmQuit) {
-        console.log("Jogo foi reiniciado");
-        alert("O jogo reiniciou");
-        phase = 0; // Encerra o jogo
-        const cells = boardElement.querySelectorAll('.cell');
-        cells.forEach(cell => cell.removeEventListener('click', handleCellClick));
-        initializeGame(gameMode, firstPlayer, aiLevel)
-    }
-    else{
-    phase = 0; // Encerra o jogo
-    const cells = boardElement.querySelectorAll('.cell');
-    cells.forEach(cell => cell.removeEventListener('click', handleCellClick));
-    console.log("Jogo finalizado pelo jogador.");
-    document.getElementById("config-area").style.display="block";
-    document.getElementById("quit-game").style.display="none";
-    document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
-    generateBoard(numSquares);
-    }
+    
+    // Show the "quit-game" button and change its text to "Jogar Novamente"
+    const quitButton = document.getElementById('quit-game');
+    quitButton.style.display = "block";
+    quitButton.textContent = "Jogar Novamente";
 }
 
 function checkForDraw() {
@@ -1026,17 +1012,36 @@ quitGameButton.addEventListener("click", function () {
 
 // Função para desistir do jogo
 function quitGame() {
-    console.log("sjdhbs");
-    const confirmQuit = confirm("Tem certeza de que deseja desistir do jogo?");
-    if (confirmQuit) {
-        console.log("Jogo finalizado pelo jogador.");
-        alert("Você desistiu do jogo.");
-        document.getElementById("config-area").style.display="block";
-        document.getElementById("quit-game").style.display="none";
-        document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
-        generateBoard(numSquares);
-    }
+    const quitButton = document.getElementById('quit-game');
     
+    // Check if the button is in "Jogar Novamente" mode
+    if (quitButton.textContent === "Jogar Novamente") {
+        const confirmRestart = confirm("Deseja jogar novamente com as mesmas configurações?");
+        if (confirmRestart) {
+            console.log("O jogador optou por reiniciar o jogo.");
+            alert("O jogo reiniciou");
+
+            document.getElementById("config-area").style.display = "block";
+            quitButton.style.display = "none";
+            quitButton.textContent = "Desistir do Jogo";
+            document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
+            generateBoard(numSquares);
+        
+        }
+    } else {
+        // Execute a função original de "Desistir do Jogo"
+        console.log("sjdhbs");
+        const confirmQuit = confirm("Tem certeza de que deseja desistir do jogo?");
+        if (confirmQuit) {
+            console.log("Jogo finalizado pelo jogador.");
+            alert("Você desistiu do jogo.");
+            document.getElementById("config-area").style.display = "block";
+            quitButton.style.display = "none";
+            quitButton.textContent = "Desistir do Jogo";
+            document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
+            generateBoard(numSquares);
+        }
+    }
 }
 
 // Funções para mostrar/ocultar configurações e comandos
