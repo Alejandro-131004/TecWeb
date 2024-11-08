@@ -758,9 +758,25 @@ function checkEndGameConditions() {
 }
 
 function endGame() {
+    const confirmQuit = confirm("Quer reiniciar o jogo com as mesmas condições?");
+    if (confirmQuit) {
+        console.log("Jogo finalizado pelo jogador.");
+        alert("O jogo reiniciou");
+        phase = 0; // Encerra o jogo
+        const cells = boardElement.querySelectorAll('.cell');
+        cells.forEach(cell => cell.removeEventListener('click', handleCellClick));
+        initializeGame(gameMode, firstPlayer, aiLevel)
+    }
+    else{
     phase = 0; // Encerra o jogo
     const cells = boardElement.querySelectorAll('.cell');
     cells.forEach(cell => cell.removeEventListener('click', handleCellClick));
+    console.log("Jogo finalizado pelo jogador.");
+    document.getElementById("config-area").style.display="block";
+    document.getElementById("quit-game").style.display="none";
+    document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
+    generateBoard(numSquares);
+    }
 }
 
 function checkForDraw() {
