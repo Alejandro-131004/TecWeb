@@ -1,7 +1,7 @@
 let phase = 1;
 let piecesPlaced = 0;
-let redPiecesPlaced = 0; // Peças colocadas pelo jogador Red
-let bluePiecesPlaced = 0; // Peças colocadas pelo jogador Blue
+let redPiecesPlaced = 0; // PeÃ§as colocadas pelo jogador Red
+let bluePiecesPlaced = 0; // PeÃ§as colocadas pelo jogador Blue
 let currentPlayer = 'red';
 let selectedPiece = null;
 let maxPieces = 0;
@@ -19,21 +19,21 @@ let pecas_fora_blue;
 let aiLevel ;
 
 
-/*----------------------------------------------------------------------------------COMEÇAR O JOGO----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------COMEÃ‡AR O JOGO----------------------------------------------------------------------------------*/
 
 function initializeGame() {
     clickSound = new sound("sound.wav");
     document.getElementById('quit-game').style.display = 'block';
     document.getElementById('config-area').style.display = 'none';
     
-    // Obtém as configurações do jogo a partir do HTML
+    // ObtÃ©m as configuraÃ§Ãµes do jogo a partir do HTML
     let gameMode = document.getElementById("game-mode").value;
     const firstPlayer = document.getElementById("first-player").value;
     aiLevel = document.getElementById("ai-level").value;
 
     console.log("Modo de Jogo:", gameMode);
     console.log("Primeiro Jogador:", firstPlayer);
-    console.log("Nível da IA:", aiLevel);
+    console.log("NÃ­vel da IA:", aiLevel);
 
     // Verifica o modo de jogo e inicializa o jogo conforme a escolha
     if (gameMode === "computer") {
@@ -58,7 +58,7 @@ function sound(src) {
 }
 
 
-/*--------------------------------------------------------------------------------IMPLEMENTAÇÃO DO JOGO--------------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------IMPLEMENTAÃ‡ÃƒO DO JOGO--------------------------------------------------------------------------------*/
 
 function startGame(firstPlayer) {
     const numSquares = parseInt(document.getElementById('numSquares').value);
@@ -67,7 +67,7 @@ function startGame(firstPlayer) {
 
 
     if (numSquares < 2) {
-        status.textContent = "Número inválido. Escolha um número maior que 2.";
+        status.textContent = "NÃºmero invÃ¡lido. Escolha um nÃºmero maior que 2.";
         return;
     }
 
@@ -97,14 +97,14 @@ function generateBoard(numSquares) {
     board = [];  // Inicializa o tabuleiro como uma matriz vazia
 
     for (let square = 0; square < numSquares; square++) {
-        const positions = new Array(8).fill(null); // Cria um círculo com 8 posições vazias
-        board.push(positions);  // Adiciona o círculo ao tabuleiro
+        const positions = new Array(8).fill(null); // Cria um cÃ­rculo com 8 posiÃ§Ãµes vazias
+        board.push(positions);  // Adiciona o cÃ­rculo ao tabuleiro
     }
 
-    // Também cria visualmente o tabuleiro na interface
+    // TambÃ©m cria visualmente o tabuleiro na interface
     boardElement.innerHTML = ''; // Limpar tabuleiro anterior
     const boardCenter = 400; // Centro do tabuleiro (800px / 2)
-    const maxRadius = 400; // Raio máximo ajustado para o quadrado maior
+    const maxRadius = 400; // Raio mÃ¡ximo ajustado para o quadrado maior
     
 
     for (let square = 0; square < numSquares; square++) {
@@ -121,7 +121,7 @@ function generateBoard(numSquares) {
             createLine(boardElement, boardCenter, boardCenter - radius, boardCenter, boardCenter + radius); // Linha vertical
         }
 
-        // Desenhar linhas entre os círculos
+        // Desenhar linhas entre os cÃ­rculos
         for (let i = 0; i < positions.length; i++) {
             const nextPos = positions[(i + 1) % positions.length];
             createLine(boardElement, boardCenter + positions[i].x, boardCenter + positions[i].y, boardCenter + nextPos.x, boardCenter + nextPos.y);
@@ -145,7 +145,7 @@ function calculatePositions(radius) {
 function createCircle(boardElement, x, y, id) {
     const cell = document.createElement('div');
     cell.classList.add('cell');
-    cell.style.left = `${x - 15}px`; // Ajuste para centralizar os círculos
+    cell.style.left = `${x - 15}px`; // Ajuste para centralizar os cÃ­rculos
     cell.style.top = `${y - 15}px`; 
     cell.id = id;
     cell.addEventListener('click', () => handleCellClick(cell));
@@ -169,16 +169,16 @@ function createLine(boardElement, x1, y1, x2, y2) {
 
 function createPieceStorage(numSquares) {
     const pieceStorageElement = document.getElementById('pieceStorage');
-    pieceStorageElement.innerHTML = ''; // Limpa peças anteriores
+    pieceStorageElement.innerHTML = ''; // Limpa peÃ§as anteriores
 
-    const piecesPerColumn = 3; // Máximo de peças por coluna
+    const piecesPerColumn = 3; // MÃ¡ximo de peÃ§as por coluna
     const bluePieces = numSquares * piecesPerColumn;
     const redPieces = numSquares * piecesPerColumn;
 
-    // Ajustes das posições iniciais
-    const blueStartX = 500; // Mais à esquerda
-    const redStartX = 1450;  // Mais à direita
-    const startY = 700; // Posição vertical inicial
+    // Ajustes das posiÃ§Ãµes iniciais
+    const blueStartX = 500; // Mais Ã  esquerda
+    const redStartX = 1450;  // Mais Ã  direita
+    const startY = 700; // PosiÃ§Ã£o vertical inicial
 
     for (let i = 0; i < bluePieces; i++) {
         const piece = document.createElement('div');
@@ -209,24 +209,24 @@ function retirarPeca(cor, indice) {
     }
 }
 
-// Função para repor uma peça no armazenamento (mostrar a peça novamente)
+// FunÃ§Ã£o para repor uma peÃ§a no armazenamento (mostrar a peÃ§a novamente)
 function reporPeca(cor, indice) {
     const piece = document.getElementById(`${cor}-piece-${indice}`);
     if (piece) {
-        console.log(`Repondo a peça: ${cor}-piece-${indice}`);
+        console.log(`Repondo a peÃ§a: ${cor}-piece-${indice}`);
         piece.style.visibility = 'visible';
     } else {
-        console.error(`Peça não encontrada: ${cor}-piece-${indice}`);
+        console.error(`PeÃ§a nÃ£o encontrada: ${cor}-piece-${indice}`);
     }
 }
 
 
 function handleCellClick(cell) {
     const [square, index] = cell.id.split('-').slice(1).map(Number);
-    console.log("O valor de waitingForRemoval handle é:", waitingForRemoval);
-    console.log("O valor de phase handle é:", phase);
+    console.log("O valor de waitingForRemoval handle Ã©:", waitingForRemoval);
+    console.log("O valor de phase handle Ã©:", phase);
 
-    // Verificar ocupação diretamente na matriz board
+    // Verificar ocupaÃ§Ã£o diretamente na matriz board
     if (phase === 1 && board[square][index] === null && waitingForRemoval===false) {
         console.log("cond1");
         placePiece(cell);
@@ -240,16 +240,16 @@ function handleCellClick(cell) {
 }
 
 function placePiece(cell) {
-    const numSquares = board.length; // número de círculos
+    const numSquares = board.length; // nÃºmero de cÃ­rculos
     const [square, index] = cell.id.split('-').slice(1).map(Number);
 
-    // Verificar se a posição já está ocupada
+    // Verificar se a posiÃ§Ã£o jÃ¡ estÃ¡ ocupada
     if (board[square][index] !== null) {
-        status.textContent = "Essa posição já está ocupada!";
+        status.textContent = "Essa posiÃ§Ã£o jÃ¡ estÃ¡ ocupada!";
         return;
     }
 
-    // Atualizar o tabuleiro com a peça do jogador atual
+    // Atualizar o tabuleiro com a peÃ§a do jogador atual
     if (currentPlayer === 'red' && redPiecesPlaced < maxPieces) {
         cell.style.backgroundColor = 'red';
         redPiecesPlaced++;
@@ -266,22 +266,22 @@ function placePiece(cell) {
         board[square][index] = 'blue';
     }
 
-    // Tocar som ao colocar a peça
+    // Tocar som ao colocar a peÃ§a
     clickSound.play();
 
     // Verifica se um moinho foi formado
     const isMillFormed = checkForMill(square, index, board, currentPlayer, numSquares);
 
-    // Verificar se é a última jogada de colocação
+    // Verificar se Ã© a Ãºltima jogada de colocaÃ§Ã£o
     const isFinalPlacement = redPiecesPlaced === maxPieces && bluePiecesPlaced === maxPieces;
 
     
     if (isMillFormed) {
         waitingForRemoval = true;
         // Atualizar o status com a mensagem do moinho
-        status.textContent = `${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)} formou um moinho! Remova uma peça do adversário.`;
+        status.textContent = `${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)} formou um moinho! Remova uma peÃ§a do adversÃ¡rio.`;
 
-        // Inicia a remoção de peça do oponente
+        // Inicia a remoÃ§Ã£o de peÃ§a do oponente
         if (isFinalPlacement) {
             startRemoveOpponentPiece_specialCase();
         } else {
@@ -293,10 +293,10 @@ function placePiece(cell) {
         else{
             togglePlayer();
         }
-        // Inicia a fase de movimentação caso nenhum moinho tenha sido formado na última jogada
+        // Inicia a fase de movimentaÃ§Ã£o caso nenhum moinho tenha sido formado na Ãºltima jogada
         startMovingPhase();
     } else {
-        // Alterna o jogador caso não seja a última jogada de colocação
+        // Alterna o jogador caso nÃ£o seja a Ãºltima jogada de colocaÃ§Ã£o
         if(gameMode === "computer"){
             togglePlayerAI();}
         else{
@@ -347,8 +347,8 @@ function updatePieceCount() {
     if (win===false){
         status.textContent = `
         Vez de ${currentPlayer}. 
-        Red: ${redPiecesPlaced}/${maxPieces} peças colocadas. 
-        Blue: ${bluePiecesPlaced}/${maxPieces} peças colocadas.
+        Red: ${redPiecesPlaced}/${maxPieces} peÃ§as colocadas. 
+        Blue: ${bluePiecesPlaced}/${maxPieces} peÃ§as colocadas.
     `;
     }
     
@@ -356,7 +356,7 @@ function updatePieceCount() {
 
 
 function getNumberOfPieces(numSquares) {
-    return 3 * numSquares * 2; // 3*n peças para cada jogador, multiplicado por 2 para dois jogadores
+    return 3 * numSquares * 2; // 3*n peÃ§as para cada jogador, multiplicado por 2 para dois jogadores
 }
 
 function resetBoard() {
@@ -365,7 +365,7 @@ function resetBoard() {
 }
 
 function checkForMill(square, index, board, currentPlayer, numSquares) {
-    if (waitingForRemoval) return false; // Evitar verificar moinho enquanto aguardamos remoção
+    if (waitingForRemoval) return false; // Evitar verificar moinho enquanto aguardamos remoÃ§Ã£o
 
     const millLines = getMillLines(square, index, numSquares);
     for (let line of millLines) {
@@ -381,7 +381,7 @@ function checkForMill(square, index, board, currentPlayer, numSquares) {
 function getMillLines(square, index, numSquares) {
     const millLines = [];
 
-    // Função auxiliar para obter subconjuntos de 3 elementos de uma linha
+    // FunÃ§Ã£o auxiliar para obter subconjuntos de 3 elementos de uma linha
     function getSubsetsOfThree(line) {
         const subsets = [];
         for (let i = 0; i <= line.length - 3; i++) {
@@ -390,9 +390,9 @@ function getMillLines(square, index, numSquares) {
         return subsets;
     }
 
-    // 1. Linhas horizontais no mesmo círculo
+    // 1. Linhas horizontais no mesmo cÃ­rculo
     if (index === 0 || index === 2 || index === 4 || index === 6) {
-        // Linha horizontal no círculo
+        // Linha horizontal no cÃ­rculo
         if (index === 0 || index === 2) {
             millLines.push([{ square, index: 0 }, { square, index: 1 }, { square, index: 2 }]);
         }
@@ -400,7 +400,7 @@ function getMillLines(square, index, numSquares) {
             millLines.push([{ square, index: 4 }, { square, index: 5 }, { square, index: 6 }]);
         }
 
-        // Linhas verticais dentro do mesmo círculo
+        // Linhas verticais dentro do mesmo cÃ­rculo
         if (index === 0 || index === 6) {
             millLines.push([{ square, index: 0 }, { square, index: 7 }, { square, index: 6 }]);
         }
@@ -409,15 +409,15 @@ function getMillLines(square, index, numSquares) {
         }
 
     } else if (index === 1 || index === 3 || index === 5 || index === 7) {
-        // 2. Linhas verticais (entre círculos) - apenas conjuntos de 3
+        // 2. Linhas verticais (entre cÃ­rculos) - apenas conjuntos de 3
         const verticalLine = [];
         for (let s = 0; s < numSquares; s++) {
             verticalLine.push({ square: s, index });
         }
-        // Adiciona apenas subconjuntos de 3 peças possíveis para formar um moinho
+        // Adiciona apenas subconjuntos de 3 peÃ§as possÃ­veis para formar um moinho
         millLines.push(...getSubsetsOfThree(verticalLine));
 
-        // Linhas horizontais no mesmo círculo
+        // Linhas horizontais no mesmo cÃ­rculo
         if (index === 1 || index === 2) {
             millLines.push([{ square, index: 0 }, { square, index: 1 }, { square, index: 2 }]);
         }
@@ -437,22 +437,22 @@ function getMillLines(square, index, numSquares) {
     return millLines;
 }
 
-// Função para obter todas as peças do adversário que podem ser removidas (não estão em um moinho)
+// FunÃ§Ã£o para obter todas as peÃ§as do adversÃ¡rio que podem ser removidas (nÃ£o estÃ£o em um moinho)
 function get_possible_removes(currentPlayer) {
-    const opponent = currentPlayer === 'red' ? 'blue' : 'red'; //Se currentPlayer for igual a 'red', então opponent será 'blue'. Caso contrário, opponent será 'red'.
+    const opponent = currentPlayer === 'red' ? 'blue' : 'red'; //Se currentPlayer for igual a 'red', entÃ£o opponent serÃ¡ 'blue'. Caso contrÃ¡rio, opponent serÃ¡ 'red'.
     const possibleRemoves = [];
 
     board.forEach((square, squareIndex) => {
         square.forEach((cell, cellIndex) => {
-            // Verifica se a célula pertence ao oponente e não está em um moinho
+            // Verifica se a cÃ©lula pertence ao oponente e nÃ£o estÃ¡ em um moinho
             if (cell === opponent && !checkForMill(squareIndex, cellIndex, board, opponent, board.length)) {
                 possibleRemoves.push({ square: squareIndex, index: cellIndex });
             }
         });
     });
 
-    // Exibe todos os movimentos possíveis para remoção no console
-    console.log("Movimentos possíveis para remoção:", possibleRemoves);
+    // Exibe todos os movimentos possÃ­veis para remoÃ§Ã£o no console
+    console.log("Movimentos possÃ­veis para remoÃ§Ã£o:", possibleRemoves);
     
     return possibleRemoves;
 }
@@ -461,21 +461,21 @@ function removePieceIfValid(cell, possibleRemoves) {
     const [square, index] = cell.id.split('-').slice(1).map(Number);
     const opponent = opponentPlayer();
     if (!Array.isArray(possibleRemoves)) {
-        console.error("Erro: possibleRemoves está indefinido ou não é um array.", possibleRemoves);
+        console.error("Erro: possibleRemoves estÃ¡ indefinido ou nÃ£o Ã© um array.", possibleRemoves);
         return false;
     }
 
-    // Verifica se a peça está entre as possíveis para remoção
+    // Verifica se a peÃ§a estÃ¡ entre as possÃ­veis para remoÃ§Ã£o
     const isRemovable = possibleRemoves.some(
         (removable) => removable.square === square && removable.index === index
     );
 
     if (!isRemovable) {
-        console.log("A peça não está entre as possíveis para remoção.");
+        console.log("A peÃ§a nÃ£o estÃ¡ entre as possÃ­veis para remoÃ§Ã£o.");
         return false;
     }
 
-    // Verifica se a célula selecionada é uma peça do oponente
+    // Verifica se a cÃ©lula selecionada Ã© uma peÃ§a do oponente
     if (board[square][index] === opponent) {
             if (opponent==='blue'){
                 pecas_fora_blue++;
@@ -488,13 +488,13 @@ function removePieceIfValid(cell, possibleRemoves) {
                 
 
             }
-        // Remove a peça do tabuleiro
+        // Remove a peÃ§a do tabuleiro
         board[square][index] = null;
-        cell.style.backgroundColor = "";  // Remove visualmente a peça do tabuleiro
+        cell.style.backgroundColor = "";  // Remove visualmente a peÃ§a do tabuleiro
         clickSound.play();
         
-        console.log(`Peça removida com sucesso: square ${square}, index ${index}.`);
-        status.textContent = `Peça removida com sucesso. Vez de ${currentPlayer}.`;
+        console.log(`PeÃ§a removida com sucesso: square ${square}, index ${index}.`);
+        status.textContent = `PeÃ§a removida com sucesso. Vez de ${currentPlayer}.`;
         waitingForRemoval = false;
         
         if(phase===2){
@@ -514,35 +514,35 @@ function removePieceIfValid(cell, possibleRemoves) {
 
 
 function startRemoveOpponentPiece() {
-    const possibleRemoves = get_possible_removes(currentPlayer); // Movimentos possiveis para remoção bla bla
+    const possibleRemoves = get_possible_removes(currentPlayer); // Movimentos possiveis para remoÃ§Ã£o bla bla
     console.log("Sim, esta merda esta a rodar aqui00");
 
-    // Verifique se há peças para remover
+    // Verifique se hÃ¡ peÃ§as para remover
     if (possibleRemoves.length === 0) {
-        console.log("Nenhuma peça disponível para remoção.");
+        console.log("Nenhuma peÃ§a disponÃ­vel para remoÃ§Ã£o.");
         return;
     }
     const cells = boardElement.querySelectorAll('.cell');
-    // Função de evento para tentar remover a peça
+    // FunÃ§Ã£o de evento para tentar remover a peÃ§a
     function handleRemovePiece(event) {
         const cell = event.target;
         console.log("Sim, esta merda esta a rodar aqui1");
-        // Tenta remover a peça e avança o turno apenas se for bem-sucedido
+        // Tenta remover a peÃ§a e avanÃ§a o turno apenas se for bem-sucedido
         if (removePieceIfValid(cell, possibleRemoves)) {
             console.log("Sim, esta merda esta a rodar aqui");
-            cells.forEach(c => c.removeEventListener('click', handleRemovePiece)); // Remove os listeners de todas as células
+            cells.forEach(c => c.removeEventListener('click', handleRemovePiece)); // Remove os listeners de todas as cÃ©lulas
             clickSound.play();
             if (win===false){
                 status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
             }
             
         } else {
-            console.log("Tens de escolher uma peça do adversário para remover");
-            status.textContent = "Tens de escolher uma peça do adversário para remover";
+            console.log("Tens de escolher uma peÃ§a do adversÃ¡rio para remover");
+            status.textContent = "Tens de escolher uma peÃ§a do adversÃ¡rio para remover";
         }
     }
 
-    // Adiciona o evento de clique para todas as células
+    // Adiciona o evento de clique para todas as cÃ©lulas
     cells.forEach(cell => {
         cell.addEventListener('click', handleRemovePiece);
     });
@@ -554,29 +554,29 @@ function startRemoveOpponentPiece_specialCase() {
 
     const cells = boardElement.querySelectorAll('.cell');
 
-    // Define o evento de clique para todas as células
+    // Define o evento de clique para todas as cÃ©lulas
     function handleRemovePiece1(event) {
         const cell = event.target;
-        // Tenta remover a peça e avança o turno apenas se for bem-sucedido
+        // Tenta remover a peÃ§a e avanÃ§a o turno apenas se for bem-sucedido
         if (removePieceIfValid(cell, possibleRemoves)) {
-            // Remove os listeners de todas as células após a remoção bem-sucedida
+            // Remove os listeners de todas as cÃ©lulas apÃ³s a remoÃ§Ã£o bem-sucedida
             cells.forEach(c => c.removeEventListener('click', handleRemovePiece1));
             clickSound.play();
             startMovingPhase();
         }
         else {
-            // Mensagem para manter o turno de remoção
-            status.textContent = "Tens de escolher uma peça do adversário para remover";
+            // Mensagem para manter o turno de remoÃ§Ã£o
+            status.textContent = "Tens de escolher uma peÃ§a do adversÃ¡rio para remover";
         }
     }
 
-    // Adiciona o listener para remover uma peça do oponente
+    // Adiciona o listener para remover uma peÃ§a do oponente
     cells.forEach(cell => {
         cell.addEventListener('click', handleRemovePiece1);
     });
 }
 
-//saber temporariamente o adversário
+//saber temporariamente o adversÃ¡rio
 function opponentPlayer() {
     return currentPlayer === 'red' ? 'blue' : 'red';
 }
@@ -584,7 +584,7 @@ function opponentPlayer() {
 function startMovingPhase() {
     phase = 2;
     waitingForRemoval = false; 
-    status.textContent = `Fase de mover peças! Vez de ${currentPlayer}.`;
+    status.textContent = `Fase de mover peÃ§as! Vez de ${currentPlayer}.`;
 }
  
 //fase 2 de mover pecas 
@@ -627,24 +627,24 @@ function handleMove(cell) {
     const [square, index] = cell.id.split('-').slice(1).map(Number);
 
     if (selectedPiece === null) {
-        // Seleciona a peça do jogador se nenhuma peça estiver selecionada
+        // Seleciona a peÃ§a do jogador se nenhuma peÃ§a estiver selecionada
         if (board[square][index] === currentPlayer) {
             selectedPiece = { square, index };
             cell.classList.add('selected');
-            status.textContent = `Movendo ${currentPlayer}, selecione uma casa contígua vazia.`;
+            status.textContent = `Movendo ${currentPlayer}, selecione uma casa contÃ­gua vazia.`;
         } else {
-            status.textContent = `Escolha uma de suas peças para mover!`;
+            status.textContent = `Escolha uma de suas peÃ§as para mover!`;
         }
     } else {
         const numSquares = board.length;
 
-        // Desseleciona a peça se a mesma célula for clicada novamente
+        // Desseleciona a peÃ§a se a mesma cÃ©lula for clicada novamente
         if (selectedPiece.square === square && selectedPiece.index === index) {
             cell.classList.remove('selected');
             selectedPiece = null;
-            status.textContent = `Seleção cancelada. Escolha uma peça para mover.`;
+            status.textContent = `SeleÃ§Ã£o cancelada. Escolha uma peÃ§a para mover.`;
         } 
-        // Verifica se o movimento é válido
+        // Verifica se o movimento Ã© vÃ¡lido
         else if (board[square][index] === null && isMoveValid(selectedPiece, { square, index }, numSquares)) {
             movePiece(selectedPiece, { square, index });
             document.getElementById(`cell-${selectedPiece.square}-${selectedPiece.index}`).classList.remove('selected');
@@ -652,11 +652,11 @@ function handleMove(cell) {
 
             // Verifica se o movimento formou um moinho
             if (checkForMill(square, index, board, currentPlayer, numSquares)) {
-                status.textContent = `${currentPlayer} formou um moinho! Remova uma peça do adversário.`;
+                status.textContent = `${currentPlayer} formou um moinho! Remova uma peÃ§a do adversÃ¡rio.`;
                 startRemoveOpponentPiece();
                 movesWithoutMill = 0;  // Reseta o contador porque um moinho foi formado
             } else {
-                // Incrementa o contador apenas se ambos os jogadores tiverem exatamente 3 peças
+                // Incrementa o contador apenas se ambos os jogadores tiverem exatamente 3 peÃ§as
                 const redPieces = board.flat().filter(piece => piece === 'red').length;
                 const bluePieces = board.flat().filter(piece => piece === 'blue').length;
 
@@ -673,29 +673,29 @@ function handleMove(cell) {
                 status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
             }
 
-            // Verifica condições de fim de jogo ou empate
+            // Verifica condiÃ§Ãµes de fim de jogo ou empate
             checkForDraw();
             checkEndGameConditions();
         } else {
-            status.textContent = `Movimento inválido. Escolha uma casa vazia e contígua.`;
+            status.textContent = `Movimento invÃ¡lido. Escolha uma casa vazia e contÃ­gua.`;
         }
     }
 }
 
 function getAdjacentCells(square, index, numSquares) {
     const adjacentCells = [];
-    console.log(`Calculando células adjacentes para square: ${square}, index: ${index}`);
-    // Adiciona adjacentes com base no índice
+    console.log(`Calculando cÃ©lulas adjacentes para square: ${square}, index: ${index}`);
+    // Adiciona adjacentes com base no Ã­ndice
     switch (index) {
         case 0:
-            // (círculo, 1) e (círculo, 7)
+            // (cÃ­rculo, 1) e (cÃ­rculo, 7)
             adjacentCells.push({ square, index: 1 });
             adjacentCells.push({ square, index: 7 });
             
             break;
 
         case 1:
-            // (círculo, 0), (círculo, 2), (círculo+1, 1) caso exista, (círculo-1, 1) caso exista
+            // (cÃ­rculo, 0), (cÃ­rculo, 2), (cÃ­rculo+1, 1) caso exista, (cÃ­rculo-1, 1) caso exista
             adjacentCells.push({ square, index: 0 });
             adjacentCells.push({ square, index: 2 });
             if (square + 1 < numSquares) {
@@ -707,13 +707,13 @@ function getAdjacentCells(square, index, numSquares) {
             break;
 
         case 2:
-            // (círculo, 1), (círculo, 7)
+            // (cÃ­rculo, 1), (cÃ­rculo, 7)
             adjacentCells.push({ square, index: 1 });
             adjacentCells.push({ square, index: 3 });
             break;
 
         case 3:
-            // (círculo, 0), (círculo, 4), (círculo+1, 3) caso exista, (círculo-1, 3) caso exista
+            // (cÃ­rculo, 0), (cÃ­rculo, 4), (cÃ­rculo+1, 3) caso exista, (cÃ­rculo-1, 3) caso exista
             adjacentCells.push({ square, index: 2 });
             adjacentCells.push({ square, index: 4 });
             if (square + 1 <= numSquares) {
@@ -725,13 +725,13 @@ function getAdjacentCells(square, index, numSquares) {
             break;
 
         case 4:
-            // (círculo, 3), (círculo, 5)
+            // (cÃ­rculo, 3), (cÃ­rculo, 5)
             adjacentCells.push({ square, index: 3 });
             adjacentCells.push({ square, index: 5 });
             break;
 
         case 5:
-            // (círculo, 4), (círculo, 6), (círculo+1, 5) caso exista, (círculo-1, 5) caso exista
+            // (cÃ­rculo, 4), (cÃ­rculo, 6), (cÃ­rculo+1, 5) caso exista, (cÃ­rculo-1, 5) caso exista
             adjacentCells.push({ square, index: 4 });
             adjacentCells.push({ square, index: 6 });
             if (square + 1 <= numSquares) {
@@ -743,13 +743,13 @@ function getAdjacentCells(square, index, numSquares) {
             break;
 
         case 6:
-            // (círculo, 5), (círculo, 7)
+            // (cÃ­rculo, 5), (cÃ­rculo, 7)
             adjacentCells.push({ square, index: 5 });
             adjacentCells.push({ square, index: 7 });
             break;
 
         case 7:
-            // (círculo, 6), (círculo, 2), (círculo+1, 7) caso exista, (círculo-1, 7) caso exista
+            // (cÃ­rculo, 6), (cÃ­rculo, 2), (cÃ­rculo+1, 7) caso exista, (cÃ­rculo-1, 7) caso exista
             adjacentCells.push({ square, index: 6 });
             adjacentCells.push({ square, index: 0 });
             if (square + 1 <= numSquares) {
@@ -761,10 +761,10 @@ function getAdjacentCells(square, index, numSquares) {
             break;
 
         default:
-            // Caso não reconhecido
+            // Caso nÃ£o reconhecido
             break;
     }
-    console.log(`Células adjacentes para square: ${square}, index: ${index}`, adjacentCells);
+    console.log(`CÃ©lulas adjacentes para square: ${square}, index: ${index}`, adjacentCells);
     return adjacentCells;
 }
 
@@ -774,11 +774,11 @@ function movePiece(from, to) {
     board[to.square][to.index] = currentPlayer;
     board[from.square][from.index] = null;
 
-    // Atualiza visualmente as células
+    // Atualiza visualmente as cÃ©lulas
     document.getElementById(`cell-${from.square}-${from.index}`).style.backgroundColor = '';
     document.getElementById(`cell-${to.square}-${to.index}`).style.backgroundColor = currentPlayer;
 
-    status.textContent = `Peça movida. Vez de ${opponentPlayer()}`;
+    status.textContent = `PeÃ§a movida. Vez de ${opponentPlayer()}`;
     
 }
 
@@ -795,12 +795,12 @@ function checkEndGameConditions() {
     const bluePieces = getCurrentPlayerPieces('blue').length;
 
     if (redPieces < 3) {
-        console.log("peças ver:",redPieces);
+        console.log("peÃ§as ver:",redPieces);
         win=true;
         status.textContent = "Jogador Blue venceu!";
         endGame(1);
     } else if (bluePieces < 3) {
-        console.log("peças azu:",bluePieces);
+        console.log("peÃ§as azu:",bluePieces);
         win=true;
         status.textContent = "Jogador Red venceu!";
         endGame(2);
@@ -815,10 +815,10 @@ function endGame(winner) {
             resultMessage = "Empate!";
             break;
         case 1:
-            resultMessage = "Vitória do Azul!";
+            resultMessage = "VitÃ³ria do Azul!";
             break;
         case 2:
-            resultMessage = "Vitória do Vermelho!";
+            resultMessage = "VitÃ³ria do Vermelho!";
             break;
         default:
             resultMessage = "Resultado indefinido.";
@@ -838,17 +838,17 @@ function checkForDraw() {
     const redPieces = board.flat().filter(piece => piece === 'red').length;
     const bluePieces = board.flat().filter(piece => piece === 'blue').length;
 
-    // 1. Verifica se passaram 10 movimentos sem formação de moinho
+    // 1. Verifica se passaram 10 movimentos sem formaÃ§Ã£o de moinho
     if (movesWithoutMill ===10) {
-        status.textContent = "Empate! Foram feitas 10 jogadas com 3 peças em cada jogador"
+        status.textContent = "Empate! Foram feitas 10 jogadas com 3 peÃ§as em cada jogador"
         endGame(0);
 
-    // 2. Verifica se ambos os jogadores não têm jogadas válidas
+    // 2. Verifica se ambos os jogadores nÃ£o tÃªm jogadas vÃ¡lidas
     const redHasMoves = hasValidMoves('red');
     const blueHasMoves = hasValidMoves('blue');
             
     if (!redHasMoves && !blueHasMoves) {
-        status.textContent = "Empate! Ambos os jogadores não têm movimentos válidos.";
+        status.textContent = "Empate! Ambos os jogadores nÃ£o tÃªm movimentos vÃ¡lidos.";
         endGame(0);
         return;
     }
@@ -861,31 +861,31 @@ function hasValidMoves(player) {
 
     for (const piece of playerPieces) {
         const adjacentCells = getAdjacentCells(piece.square, piece.index, board.length);
-        // Verifica se há uma célula adjacente vazia para pelo menos uma peça
+        // Verifica se hÃ¡ uma cÃ©lula adjacente vazia para pelo menos uma peÃ§a
         if (adjacentCells.some(cell => board[cell.square][cell.index] === null)) {
-            return true; // Há pelo menos um movimento válido
+            return true; // HÃ¡ pelo menos um movimento vÃ¡lido
         }
     }
 
-    return false; // Nenhum movimento válido encontrado
+    return false; // Nenhum movimento vÃ¡lido encontrado
 }
 
 function viewScores() {
-    alert("Visualizando as classificações!");
+    alert("Visualizando as classificaÃ§Ãµes!");
 }
 
 function startGameTwoPlayers(firstPlayer) {
-    currentPlayer = firstPlayer; // Define o jogador inicial com base na seleção
-    startGame(firstPlayer); // Passa o jogador inicial para a função startGame
+    currentPlayer = firstPlayer; // Define o jogador inicial com base na seleÃ§Ã£o
+    startGame(firstPlayer); // Passa o jogador inicial para a funÃ§Ã£o startGame
     console.log(`Iniciando jogo entre dois jogadores. Primeiro a jogar: ${firstPlayer}`);
 }
 
 /*-------------------------------------------------------------------------------------------AI-------------------------------------------------------------------------------------------*/
 
-// Funções de exemplo para iniciar o jogo
+// FunÃ§Ãµes de exemplo para iniciar o jogo
 function startGameWithAI(firstPlayer) {
     currentPlayer = firstPlayer;
-    startGame(firstPlayer); // Configura o tabuleiro e variáveis
+    startGame(firstPlayer); // Configura o tabuleiro e variÃ¡veis
 
      makeRandomMove(); // Computador faz a primeira jogada se for o jogador inicial
     
@@ -921,7 +921,7 @@ function placePieceAI({ square, index, cell }) {
 
     if (isMillFormed) {
         waitingForRemoval = true;
-        status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
+        status.textContent = "Computador formou um moinho! Removendo uma peÃ§a do jogador.";
         removePlayerPieceAI(); // Automatically remove a player piece for AI
     } else if (isFinalPlacement) {
         // If final placement move, start moving phase and toggle to player
@@ -945,9 +945,10 @@ function makeRandomMove() {
         // Perform the move
         if (phase === 1) {
             if (checkForMill(square, index, board, computerColor, board.length)) {
-                status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
+                status.textContent = "Computador formou um moinho! Removendo uma peÃ§a do jogador.";
                 removePlayerPieceAI();
-                togglePlayerAI()}
+                
+            }
             else{
             placePieceAI({ square, index, cell });  // Handle placing the piece for Phase 1
             }
@@ -957,33 +958,53 @@ function makeRandomMove() {
     }
 }
 
-function handleMoveAI(selectedPiece,cell) {
+function handleMoveAI(selectedPiece, cell) {
+    console.log("Iniciando handleMoveAI");
+    
     // Ensure we're in Phase 2 (Movement phase) and not waiting for removal
-    if (phase !== 2 || waitingForRemoval) return;
+    if (phase !== 2 || waitingForRemoval) {
+        console.log("Não é a fase de movimento ou estamos aguardando a remoção.");
+        return;
+    }
     
     const [square, index] = cell.id.split('-').slice(1).map(Number);
+    console.log(`Posição alvo: square = ${square}, index = ${index}`);
     
     // Validate that `selectedPiece` exists and `cell` is a valid target
     if (selectedPiece && board[square] && board[square][index] === null) {
+        console.log("Peça selecionada e célula alvo válida.");
         movePiece(selectedPiece, { square, index });
         
+        console.log("Peça movida para nova posição.");
+
         // Clear the selected class from the previous piece
         document.getElementById(`cell-${selectedPiece.square}-${selectedPiece.index}`).classList.remove('selected');
+        console.log(`Removendo a seleção da peça anterior em cell-${selectedPiece.square}-${selectedPiece.index}`);
+        
         selectedPiece = null;
 
         // Check if the move forms a mill
         if (checkForMill(square, index, board, currentPlayer, board.length)) {
-            if(currentPlayer === humanColor){
-            status.textContent = `${currentPlayer} formou um moinho! Remova uma peça do adversário.`;
-            startRemoveOpponentPiece();}
-            else{
+            console.log("Formou um moinho!");
+            
+            if (currentPlayer === humanColor) {
+                console.log(`${currentPlayer} formou um moinho! Aguardando remoção de peça do adversário.`);
+                status.textContent = `${currentPlayer} formou um moinho! Remova uma peça do adversário.`;
+                startRemoveOpponentPiece();
+            } else {
+                console.log("AI formou um moinho! Removendo peça do jogador.");
                 removePlayerPieceAI();
             }
             movesWithoutMill = 0;  // Reset the counter because a mill was formed
+            console.log("Contador de movimentos sem moinho resetado.");
         } else {
+            console.log("Nenhum moinho formado.");
+            
             // Track moves if both players have exactly 3 pieces
             const redPieces = board.flat().filter(piece => piece === 'red').length;
             const bluePieces = board.flat().filter(piece => piece === 'blue').length;
+
+            console.log(`Peças vermelhas: ${redPieces}, Peças azuis: ${bluePieces}`);
 
             if (redPieces === 3 && bluePieces === 3) {
                 movesWithoutMill++;
@@ -992,9 +1013,11 @@ function handleMoveAI(selectedPiece,cell) {
 
             // Toggle player or switch to AI depending on game mode
             if (gameMode === "computer") {
+                console.log("Modo de jogo: computador. Alternando para a vez da IA.");
                 togglePlayerAI(); // Switch to AI's turn
-                setTimeout(makeRandomMove, 1000); // Make AI move after a short delay
+                setTimeout(makeRandomMove, 1000000); // Make AI move after a short delay
             } else {
+                console.log("Alternando para o próximo jogador.");
                 togglePlayer(); // Normal player turn switching
             }
 
@@ -1002,13 +1025,13 @@ function handleMoveAI(selectedPiece,cell) {
         }
 
         // Check for game-ending conditions
+        console.log("Verificando condições de final de jogo.");
         checkForDraw();
         checkEndGameConditions();
     } else {
-        console.warn("Invalid move or no piece selected for AI.");
+        console.warn("Movimento inválido ou nenhuma peça selecionada para a IA.");
     }
 }
-
 
 
 
@@ -1104,12 +1127,12 @@ function removePlayerPieceAI() {
         board[square][index] = null;
         document.getElementById(`cell-${square}-${index}`).style.backgroundColor = '';
         waitingForRemoval = false
-        togglePlayerAI(); // Alterna para o jogador humano após remover a peça
+        togglePlayerAI(); // Alterna para o jogador humano apÃ³s remover a peÃ§a
         status.textContent = "Vez do jogador humano.";
     }
 }
 
-// Lógica para quando o computador precisar remover uma peça do oponente
+// LÃ³gica para quando o computador precisar remover uma peÃ§a do oponente
 function computerRemoveOpponentPiece() {
     const possibleRemoves = get_possible_removes(currentPlayer);
     if (possibleRemoves.length > 0) {
@@ -1117,17 +1140,17 @@ function computerRemoveOpponentPiece() {
         const { square, index } = possibleRemoves[randomIndex];
         const cell = document.querySelector(`#cell-${square}-${index}`);
 
-        // Tenta remover a peça do oponente (usando removeOpponentPiece) e valida a remoção
+        // Tenta remover a peÃ§a do oponente (usando removeOpponentPiece) e valida a remoÃ§Ã£o
         if (removeOpponentPiece(cell)) {
-            console.log("Computador removeu uma peça válida.");
+            console.log("Computador removeu uma peÃ§a vÃ¡lida.");
         } else {
-            console.log("Erro: Computador tentou remover uma peça inválida.");
+            console.log("Erro: Computador tentou remover uma peÃ§a invÃ¡lida.");
         }
     } else {
-        console.log("Nenhuma peça disponível para remoção.");
+        console.log("Nenhuma peÃ§a disponÃ­vel para remoÃ§Ã£o.");
     }
 }
-/*-------------------------------------------------------------------------------------------BOTÕES-------------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------------------------BOTÃ•ES-------------------------------------------------------------------------------------------*/
 
 
 function openInstructions() {
@@ -1138,7 +1161,7 @@ function closeInstructions() {
     document.getElementById("instructionsModal").style.display = "none";
 }
 
-// Fecha o modal ao clicar fora do conteúdo
+// Fecha o modal ao clicar fora do conteÃºdo
 window.onclick = function(event) {
     const modal = document.getElementById("instructionsModal");
     if (event.target === modal) {
@@ -1146,48 +1169,48 @@ window.onclick = function(event) {
     }
 };
 
-// Referências para elementos de configuração
+// ReferÃªncias para elementos de configuraÃ§Ã£o
 const gameModeSelect = document.getElementById("game-mode");
 const firstPlayerSelect = document.getElementById("first-player");
 const aiLevelSelect = document.getElementById("ai-level");
 const startGameButton = document.getElementById("start-game");
 
-// Variáveis de controle
-let gameMode = "player"; // Dois jogadores por padrão
-let firstPlayer = "red"; // Red inicia por padrão 
+// VariÃ¡veis de controle
+let gameMode = "player"; // Dois jogadores por padrÃ£o
+let firstPlayer = "red"; // Red inicia por padrÃ£o 
 
-// Ativa ou desativa o nível de IA com base no modo selecionado
+// Ativa ou desativa o nÃ­vel de IA com base no modo selecionado
 gameModeSelect.addEventListener("change", function () {
     gameMode = gameModeSelect.value;
     aiLevelSelect.disabled = gameMode !== "computer";
 });
 
-// Captura as outras configurações ao clicar para iniciar o jogo
+// Captura as outras configuraÃ§Ãµes ao clicar para iniciar o jogo
 startGameButton.addEventListener("click", function () {
     firstPlayer = firstPlayerSelect.value;
     aiLevel = aiLevelSelect.value;
 
-    // Inicializa o jogo conforme as configurações
+    // Inicializa o jogo conforme as configuraÃ§Ãµes
     initializeGame(gameMode, firstPlayer, aiLevel);
 });
 
 
-// Referência ao botão "Desistir do Jogo"
+// ReferÃªncia ao botÃ£o "Desistir do Jogo"
 const quitGameButton = document.getElementById("quit-game");
 
-// Adiciona um evento de clique ao botão para desistir do jogo
+// Adiciona um evento de clique ao botÃ£o para desistir do jogo
 
 quitGameButton.addEventListener("click", function () {
     quitGame();
 });
 
-// Função para desistir do jogo
+// FunÃ§Ã£o para desistir do jogo
 function quitGame() {
     const quitButton = document.getElementById('quit-game');
     
     // Check if the button is in "Jogar Novamente" mode
     if (quitButton.textContent === "Jogar Novamente") {
-        const confirmRestart = confirm("Deseja jogar novamente com as mesmas configurações?");
+        const confirmRestart = confirm("Deseja jogar novamente com as mesmas configuraÃ§Ãµes?");
         if (confirmRestart) {
             console.log("O jogador optou por reiniciar o jogo.");
             alert("O jogo reiniciou");
@@ -1195,27 +1218,27 @@ function quitGame() {
             document.getElementById("config-area").style.display = "block";
             quitButton.style.display = "none";
             quitButton.textContent = "Desistir do Jogo";
-            document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
+            document.getElementById("status").innerText = "VocÃª pode recomeÃ§ar o jogo!";
             generateBoard(numSquares);
         
         }
     } else {
-        // Execute a função original de "Desistir do Jogo"
+        // Execute a funÃ§Ã£o original de "Desistir do Jogo"
         console.log("sjdhbs");
         const confirmQuit = confirm("Tem certeza de que deseja desistir do jogo?");
         if (confirmQuit) {
             console.log("Jogo finalizado pelo jogador.");
-            alert("Você desistiu do jogo.");
+            alert("VocÃª desistiu do jogo.");
             document.getElementById("config-area").style.display = "block";
             quitButton.style.display = "none";
             quitButton.textContent = "Desistir do Jogo";
-            document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
+            document.getElementById("status").innerText = "VocÃª pode recomeÃ§ar o jogo!";
             generateBoard(numSquares);
         }
     }
 }
 
-// Funções para mostrar/ocultar configurações e comandos
+// FunÃ§Ãµes para mostrar/ocultar configuraÃ§Ãµes e comandos
 function toggleConfig() {
     const configArea = document.getElementById("config-area");
     const isHidden = configArea.style.display === "none";
@@ -1230,10 +1253,10 @@ function toggleCommands() {
     commands.style.display = commands.style.display === "none" ? "block" : "none";
 }
 
-/*--------------------------------------------------------------------------------------IDENTIFICAÇÃO--------------------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------IDENTIFICAÃ‡ÃƒO--------------------------------------------------------------------------------------*/
 
 
-// Função para alternar a área de identificação
+// FunÃ§Ã£o para alternar a Ã¡rea de identificaÃ§Ã£o
 function toggleAuth() {
     const authArea = document.getElementById('identification');
     if (authArea.style.display === 'none') {
@@ -1243,27 +1266,27 @@ function toggleAuth() {
     }
 }
 
-// Função para autenticar o jogador e exibir o menu de configurações
+// FunÃ§Ã£o para autenticar o jogador e exibir o menu de configuraÃ§Ãµes
 function authenticateUser(event) {
-    event.preventDefault(); // Impede o envio real do formulário
+    event.preventDefault(); // Impede o envio real do formulÃ¡rio
 
-    // Oculta a área de identificação e exibe as configurações de jogo
+    // Oculta a Ã¡rea de identificaÃ§Ã£o e exibe as configuraÃ§Ãµes de jogo
     document.getElementById('identification').style.display = 'none';
     document.getElementById('config-area').style.display = 'block';
 
-    // Atualiza o status para "Configurações de Jogo"
-    document.getElementById('status').textContent = "Configurações de Jogo";
+    // Atualiza o status para "ConfiguraÃ§Ãµes de Jogo"
+    document.getElementById('status').textContent = "ConfiguraÃ§Ãµes de Jogo";
 }
 
 
 function showInstructionContent(topicId) {
-    // Oculta todos os conteúdos de instruções
+    // Oculta todos os conteÃºdos de instruÃ§Ãµes
     const contents = document.querySelectorAll('.instruction-text');
     contents.forEach(content => {
         content.style.display = 'none';
     });
 
-    // Mostra o conteúdo selecionado
+    // Mostra o conteÃºdo selecionado
     const selectedContent = document.getElementById(topicId);
     if (selectedContent) {
         selectedContent.style.display = 'block';
