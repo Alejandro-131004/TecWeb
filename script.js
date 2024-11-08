@@ -879,9 +879,8 @@ function startGameWithAI(firstPlayer) {
     currentPlayer = firstPlayer;
     startGame(firstPlayer); // Configura o tabuleiro e variáveis
 
-    if (currentPlayer === computerColor) {
-        makeRandomMove(); // Computador faz a primeira jogada se for o jogador inicial
-    }
+     makeRandomMove(); // Computador faz a primeira jogada se for o jogador inicial
+    
 }
 function placePieceAI({ square, index, cell }) {
     if (!cell) {
