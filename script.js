@@ -589,28 +589,36 @@ function startMovingPhase() {
  
 //fase 2 de mover pecas 
 function isMoveValid(from, to, numSquares) {
-    const playerPieces = board.flat().filter(piece => piece === currentPlayer).length;
-    const playerPieces_oponent = board.flat().filter(piece => piece === opponentPlayer).length;
-    
-    // Se o jogador tem exatamente 3 peças, ele pode se mover para qualquer célula livre
-    if (playerPieces === 3) {
-        if (playerPieces_oponent===3){
-            console.log("entrei ihihih");
-            movesWithoutMill++;
+    try {
+        const playerPieces = board.flat().filter(piece => piece === currentPlayer).length;
+        const playerPieces_opponent = board.flat().filter(piece => piece === opponentPlayer).length;
+
+        // If player has exactly 3 pieces, they can move to any empty cell
+        if (playerPieces === 3) {
+            if (playerPieces_opponent === 3) {
+                console.log("Both players have exactly 3 pieces remaining.");
+                movesWithoutMill++;
+            }
+            return board[to.square][to.index] === null; // Check if target cell is empty
         }
 
-        
-        return board[to.square][to.index] === null; // Verifica se a célula de destino está vazia
-    }
+        // For more than 3 pieces, restrict to adjacent cells only
+        const adjacentCells = getAdjacentCells(from.square, from.index, numSquares);
 
-    // Se o jogador tem mais de 3 peças, ele só pode se mover para células adjacentes
-    const adjacentCells = getAdjacentCells(from.square, from.index, numSquares);
-    
-    // Verifica se a célula de destino é adjacente e está vazia
-    return adjacentCells.some(cell => 
-        cell.square === to.square && cell.index === to.index && board[to.square][to.index] === null
-    );
+        // Check if the target cell is in bounds, adjacent, and empty
+        return adjacentCells.some(cell =>
+            cell.square === to.square &&
+            cell.index === to.index &&
+            cell.square >= 0 && cell.square < numSquares && // Check ring bounds
+            cell.index >= 0 && cell.index < 8 &&            // Check position within ring
+            board[to.square][to.index] === null
+        );
+    } catch (error) {
+        console.error("Invalid move attempt:", error);
+        return false; // Out-of-bounds or invalid move
+    }
 }
+
 
 
 function handleMove(cell) {
@@ -928,59 +936,164 @@ function placePieceAI({ square, index, cell }) {
 
 // Modified `makeRandomMove` to select a random move and pass it to `placePieceAI`
 function makeRandomMove() {
-    const availableMoves = availablemoves();
-    difficulty = aiLevel;
+    const availableMove = availableMoves();  // Get the next valid move (this should already return an object with selectedPiece and move)
+    difficulty = aiLevel
+    if (availableMove) {
+        const { selectedPiece, move } = availableMove;  // Destructure the available move
+        const { square, index } = move;
+            const cell = document.getElementById(`cell-${square}-${index}`);
+        // If difficulty is Medium or Hard, check for a mill before making the move
+        if (difficulty === "medium" || difficulty === "hard") {
+            
 
-    if (availableMoves.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableMoves.length);
-        const { square, index } = availableMoves[randomIndex];
-        const cell = document.getElementById(`cell-${square}-${index}`); // Get the actual DOM element
-
-        if (difficulty === "easy") {
-            placePieceAI({ square, index, cell }); // Pass the cell and indices
-        } else if (difficulty === "medium" || difficulty === "hard") {
-            for (let i of availableMoves) {
-                if (checkForMill(i.square, i.index, board, computerColor, board.length)) {
-                    status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
-                    removePlayerPieceAI();
-                }
+            // Check if this move creates a mill
+            if (checkForMill(square, index, board, computerColor, board.length)) {
+                status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
+                removePlayerPieceAI();  // Handle the mill by removing an opponent piece
+                return;  // Exit the function after handling the mill
             }
-            placePieceAI({ square, index, cell }); // Place the computer's piece on the selected cell
         }
+
+        // Perform the move
+        if (phase === 1) {
+            
+            placePieceAI({ square, index, cell });  // Handle placing the piece for Phase 1
+        } else {
+            handleMoveAI(selectedPiece, cell);  // Handle movement for Phase 2 or 3
+        }
+    }
+}
+
+function handleMoveAI(selectedPiece,cell) {
+    // Ensure we're in Phase 2 (Movement phase) and not waiting for removal
+    if (phase !== 2 || waitingForRemoval) return;
+    
+    const [square, index] = cell.id.split('-').slice(1).map(Number);
+    
+    // Validate that `selectedPiece` exists and `cell` is a valid target
+    if (selectedPiece && board[square] && board[square][index] === null) {
+        movePiece(selectedPiece, { square, index });
+        
+        // Clear the selected class from the previous piece
+        document.getElementById(`cell-${selectedPiece.square}-${selectedPiece.index}`).classList.remove('selected');
+        selectedPiece = null;
+
+        // Check if the move forms a mill
+        if (checkForMill(square, index, board, currentPlayer, board.length)) {
+            if(currentPlayer === humanColor){
+            status.textContent = `${currentPlayer} formou um moinho! Remova uma peça do adversário.`;
+            startRemoveOpponentPiece();}
+            else{
+                removePlayerPieceAI();
+            }
+            movesWithoutMill = 0;  // Reset the counter because a mill was formed
+        } else {
+            // Track moves if both players have exactly 3 pieces
+            const redPieces = board.flat().filter(piece => piece === 'red').length;
+            const bluePieces = board.flat().filter(piece => piece === 'blue').length;
+
+            if (redPieces === 3 && bluePieces === 3) {
+                movesWithoutMill++;
+                console.log(`Movimentos sem formar moinho: ${movesWithoutMill}`);
+            }
+
+            // Toggle player or switch to AI depending on game mode
+            if (gameMode === "computer") {
+                togglePlayerAI(); // Switch to AI's turn
+                setTimeout(makeRandomMove, 1000); // Make AI move after a short delay
+            } else {
+                togglePlayer(); // Normal player turn switching
+            }
+
+            status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
+        }
+
+        // Check for game-ending conditions
+        checkForDraw();
+        checkEndGameConditions();
+    } else {
+        console.warn("Invalid move or no piece selected for AI.");
     }
 }
 
 
 
-function availablemoves(){
+
+function availableMoves() {
     const availableMoves = [];
     const computerPieces = [];
-    let posiblemoves = [];
-    if (phase === 1){
-        for (let square = 0; square < board.length; square++) {
+    let possibleMoves = [];
+
+    // Define total number of squares for bounds checking
+    const numSquares = board.length;
+
+    if (phase === 1) {
+        // Phase 1: Look for empty cells on the board
+        for (let square = 0; square < numSquares; square++) {
             for (let index = 0; index < board[square].length; index++) {
-                if (board[square][index] === null) {
+                if (board[square][index] === null) { // Only add if cell is empty
                     availableMoves.push({ square, index });
-                }}}}
-    if(phase === 2){
-        for (let square = 0; square < board.length; square++) {
+                }
+            }
+        }
+    } else if (phase === 2 || phase === 3) {
+        // Phase 2 or 3: Find all computer's pieces and check adjacent cells for valid moves
+        for (let square = 0; square < numSquares; square++) {
             for (let index = 0; index < board[square].length; index++) {
                 if (board[square][index] === computerColor) {
                     computerPieces.push({ square, index });
                 }
             }
         }
-        for (let i in computerPieces){
-            posiblemoves = getAdjacentCells(i.square, i.index, numSquares);
-            for(let t in posiblemoves){
-                if(isMoveValid(i,t,numSquares)){
-                    availableMoves.push(t);
+
+        // For each computer piece, find valid adjacent moves
+        for (let piece of computerPieces) {
+            possibleMoves = getAdjacentCells(piece.square, piece.index, numSquares);
+
+            for (let move of possibleMoves) {
+                const { square, index } = move;
+
+                // Check that the destination cell is within bounds and empty
+                if (
+                    square >= 0 && square < numSquares &&
+                    index >= 0 && index < board[square].length &&
+                    isMoveValid(piece, move, numSquares) &&
+                    board[square][index] === null
+                ) {
+                    // For medium difficulty, check if move creates a mill sometimes
+                    if (difficulty === 'medium' && Math.random() < 0.5) {
+                        if (checkForMill(square, index, board, computerColor, numSquares)) {
+                            return { selectedPiece: piece, move: { square, index }}; // Return immediately if a mill is formed
+                        } else {
+                            availableMoves.push({ piece, square, index, createsMill: false });
+                        }
+                    } 
+                    // For hard difficulty, always check if move creates a mill
+                    else if (difficulty === 'hard' && checkForMill(square, index, board, computerColor, numSquares)) {
+                        return { selectedPiece: piece, move: { square, index } }; // Return immediately if a mill is formed
+                    } 
+                    // If no mill creation is considered, just add the move
+                    else {
+                        availableMoves.push({ piece, square, index, createsMill: false });
+                    }
                 }
             }
         }
     }
-    return availableMoves
+
+    // If there are valid moves available, select a random one
+    if (availableMoves.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableMoves.length);
+        const { piece, square, index } = availableMoves[randomIndex];
+
+        return { selectedPiece: piece, move: { square, index } };
+    }
+
+    return null;  // No valid moves available
 }
+
+
+
 
 function removePlayerPieceAI() {
     const playerPieces = [];
