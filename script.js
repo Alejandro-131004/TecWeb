@@ -589,35 +589,28 @@ function startMovingPhase() {
  
 //fase 2 de mover pecas 
 function isMoveValid(from, to, numSquares) {
-    try {
-        const playerPieces = board.flat().filter(piece => piece === currentPlayer).length;
-        const playerPieces_opponent = board.flat().filter(piece => piece === opponentPlayer).length;
-
-        // If player has exactly 3 pieces, they can move to any empty cell
-        if (playerPieces === 3) {
-            if (playerPieces_opponent === 3) {
-                console.log("Both players have exactly 3 pieces remaining.");
-                movesWithoutMill++;
-            }
-            return board[to.square][to.index] === null; // Check if target cell is empty
+    const playerPieces = board.flat().filter(piece => piece === currentPlayer).length;
+    const playerPieces_oponent = board.flat().filter(piece => piece === opponentPlayer).length;
+    
+    // Se o jogador tem exatamente 3 peças, ele pode se mover para qualquer célula livre
+    if (playerPieces === 3) {
+        if (playerPieces_oponent===3){
+            console.log("entrei ihihih");
+            movesWithoutMill++;
         }
 
-        // For more than 3 pieces, restrict to adjacent cells only
-        const adjacentCells = getAdjacentCells(from.square, from.index, numSquares);
-
-        // Check if the target cell is in bounds, adjacent, and empty
-        return adjacentCells.some(cell =>
-            cell.square === to.square &&
-            cell.index === to.index &&
-            cell.square >= 0 && cell.square < numSquares && // Check ring bounds
-            cell.index >= 0 && cell.index < 8 &&            // Check position within ring
-            board[to.square][to.index] === null
-        );
-    } catch (error) {
-        console.error("Invalid move attempt:", error);
-        return false; // Out-of-bounds or invalid move
+        
+        return board[to.square][to.index] === null; // Verifica se a célula de destino está vazia
     }
-}
+
+    // Se o jogador tem mais de 3 peças, ele só pode se mover para células adjacentes
+    const adjacentCells = getAdjacentCells(from.square, from.index, numSquares);
+    
+    // Verifica se a célula de destino é adjacente e está vazia
+    return adjacentCells.some(cell => 
+        cell.square === to.square && cell.index === to.index && board[to.square][to.index] === null
+    );
+} 
 
 
 
@@ -1039,8 +1032,6 @@ function availableMoves() {
     const availableMoves = [];
     const computerPieces = [];
     let possibleMoves = [];
-
-    // Define total number of squares for bounds checking
     const numSquares = board.length;
 
     if (phase === 1) {
@@ -1048,12 +1039,34 @@ function availableMoves() {
         for (let square = 0; square < numSquares; square++) {
             for (let index = 0; index < board[square].length; index++) {
                 if (board[square][index] === null) { // Only add if cell is empty
-                    availableMoves.push({ square, index });
+                    // Temporarily place the piece to simulate the move
+                    board[square][index] = currentPlayer;
+
+                    // For medium difficulty, randomly check for mill
+                    if (aiLevel === 'medium' && Math.random() < 0.5) {
+                        if (checkForMill(square, index, board, currentPlayer, numSquares)) {
+                            waitingForRemoval = false;  // Reset waiting flag
+                            board[square][index] = null; // Revert the placement
+                            return { selectedPiece: null, move: { square, index } }; // Return move
+                        }
+                    } 
+                    // For hard difficulty, always check for mill
+                    else if (aiLevel === 'hard' && checkForMill(square, index, board, currentPlayer, numSquares)) {
+                        waitingForRemoval = false; // Reset waiting flag
+                        board[square][index] = null; // Revert the placement
+                        return { selectedPiece: null, move: { square, index } }; // Return move
+                    }
+
+                    // Revert the temporary placement after check
+                    board[square][index] = null;
+                    
+                    // Add the move to available moves if no mill or mill checking not required
+                    availableMoves.push({ square, index, createsMill: false });
                 }
             }
         }
-    } else if (phase === 2 || phase === 3) {
-        // Phase 2 or 3: Find all computer's pieces and check adjacent cells for valid moves
+    } else if (phase === 2) {
+        // Phase 2: Find all computer's pieces and check adjacent cells for valid moves
         for (let square = 0; square < numSquares; square++) {
             for (let index = 0; index < board[square].length; index++) {
                 if (board[square][index] === computerColor) {
@@ -1076,20 +1089,81 @@ function availableMoves() {
                     isMoveValid(piece, move, numSquares) &&
                     board[square][index] === null
                 ) {
-                    // For medium difficulty, check if move creates a mill sometimes
-                    if (difficulty === 'medium' && Math.random() < 0.5) {
+                    // Temporarily move the piece to simulate the move
+                    board[piece.square][piece.index] = null;
+                    board[square][index] = computerColor;
+
+                    // For medium difficulty, randomly check for mill
+                    if (aiLevel === 'medium' && Math.random() < 0.5) {
                         if (checkForMill(square, index, board, computerColor, numSquares)) {
-                            return { selectedPiece: piece, move: { square, index }}; // Return immediately if a mill is formed
-                        } else {
-                            availableMoves.push({ piece, square, index, createsMill: false });
+                            waitingForRemoval = false;  // Reset waiting flag
+                            // Revert the temporary move
+                            board[square][index] = null;
+                            board[piece.square][piece.index] = computerColor;
+                            return { selectedPiece: piece, move: { square, index } }; // Return move
                         }
                     } 
-                    // For hard difficulty, always check if move creates a mill
-                    else if (difficulty === 'hard' && checkForMill(square, index, board, computerColor, numSquares)) {
-                        return { selectedPiece: piece, move: { square, index } }; // Return immediately if a mill is formed
-                    } 
-                    // If no mill creation is considered, just add the move
-                    else {
+                    // For hard difficulty, always check for mill
+                    else if (aiLevel === 'hard' && checkForMill(square, index, board, computerColor, numSquares)) {
+                        waitingForRemoval = false; // Reset waiting flag
+                        // Revert the temporary move
+                        board[square][index] = null;
+                        board[piece.square][piece.index] = computerColor;
+                        return { selectedPiece: piece, move: { square, index } }; // Return move
+                    }
+
+                    // Revert the temporary move after check
+                    board[square][index] = null;
+                    board[piece.square][piece.index] = computerColor;
+                    
+                    // Add the move to available moves if no mill or mill checking not required
+                    availableMoves.push({ piece, square, index, createsMill: false });
+                }
+            }
+        }
+    } else if (phase === 3) {
+        // Phase 3: Find all computer's pieces and allow moving to any unoccupied cell
+        for (let square = 0; square < numSquares; square++) {
+            for (let index = 0; index < board[square].length; index++) {
+                if (board[square][index] === computerColor) {
+                    computerPieces.push({ square, index });
+                }
+            }
+        }
+
+        // For each computer piece, check all empty cells on the board
+        for (let piece of computerPieces) {
+            for (let square = 0; square < numSquares; square++) {
+                for (let index = 0; index < board[square].length; index++) {
+                    if (board[square][index] === null) { // Only consider empty cells
+                        // Temporarily move the piece to simulate the move
+                        board[piece.square][piece.index] = null;
+                        board[square][index] = computerColor;
+
+                        // For medium difficulty, randomly check for mill
+                        if (aiLevel === 'medium' && Math.random() < 0.5) {
+                            if (checkForMill(square, index, board, computerColor, numSquares)) {
+                                waitingForRemoval = false;  // Reset waiting flag
+                                // Revert the temporary move
+                                board[square][index] = null;
+                                board[piece.square][piece.index] = computerColor;
+                                return { selectedPiece: piece, move: { square, index } }; // Return move
+                            }
+                        } 
+                        // For hard difficulty, always check for mill
+                        else if (aiLevel === 'hard' && checkForMill(square, index, board, computerColor, numSquares)) {
+                            waitingForRemoval = false; // Reset waiting flag
+                            // Revert the temporary move
+                            board[square][index] = null;
+                            board[piece.square][piece.index] = computerColor;
+                            return { selectedPiece: piece, move: { square, index } }; // Return move
+                        }
+
+                        // Revert the temporary move after check
+                        board[square][index] = null;
+                        board[piece.square][piece.index] = computerColor;
+                        
+                        // Add the move to available moves if no mill or mill checking not required
                         availableMoves.push({ piece, square, index, createsMill: false });
                     }
                 }
@@ -1097,16 +1171,16 @@ function availableMoves() {
         }
     }
 
-    // If there are valid moves available, select a random one
+    // Select a random move from available moves if no mill was found to return immediately
     if (availableMoves.length > 0) {
         const randomIndex = Math.floor(Math.random() * availableMoves.length);
         const { piece, square, index } = availableMoves[randomIndex];
-
-        return { selectedPiece: piece, move: { square, index } };
+        return { selectedPiece: piece, move: { square, index }};
     }
 
     return null;  // No valid moves available
 }
+
 
 
 
