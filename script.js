@@ -27,7 +27,7 @@ function initializeGame() {
     document.getElementById('config-area').style.display = 'none';
     
     // Obtém as configurações do jogo a partir do HTML
-    const gameMode = document.getElementById("game-mode").value;
+    let gameMode = document.getElementById("game-mode").value;
     const firstPlayer = document.getElementById("first-player").value;
     aiLevel = document.getElementById("ai-level").value;
 
@@ -307,6 +307,9 @@ function placePiece(cell) {
 
 function togglePlayer() {
     currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
+    if(gameMode === "computer"){
+        togglePlayerAI()
+    }
     if (win===false){
         status.textContent = `Vez de ${currentPlayer}.`;
     }
@@ -320,7 +323,12 @@ function togglePlayer() {
 
 function togglePlayerAI() {
     // Alternate between 'red' (human) and 'computerColor' (AI)
-    currentPlayer = (currentPlayer === 'red') ? computerColor : 'red';
+    if(currentPlayer == computerColor){
+        currentPlayer = humanColor
+    }
+    else{
+        currentPlayer = computerColor
+    }
 
     if (win === false) {
         status.textContent = `Vez de ${currentPlayer === 'red' ? 'Jogador Humano' : 'Computador'}.`;
@@ -334,14 +342,16 @@ function togglePlayerAI() {
     updatePieceCount();
 }
 
+
 function updatePieceCount() {
-    if (win === false) {
+    if (win===false){
         status.textContent = `
-        Vez de ${currentPlayer === 'red' ? 'Jogador Humano' : 'Computador'}.
-        Red: ${redPiecesPlaced}/${maxPieces} peças colocadas.
-        ${computerColor.charAt(0).toUpperCase() + computerColor.slice(1)}: ${bluePiecesPlaced}/${maxPieces} peças colocadas.
+        Vez de ${currentPlayer}. 
+        Red: ${redPiecesPlaced}/${maxPieces} peças colocadas. 
+        Blue: ${bluePiecesPlaced}/${maxPieces} peças colocadas.
     `;
     }
+    
 }
 
 
@@ -873,41 +883,75 @@ function startGameWithAI(firstPlayer) {
         makeRandomMove(); // Computador faz a primeira jogada se for o jogador inicial
     }
 }
-
-
-function makeRandomMove() {
-    const availableMoves = availablemoves();
-    difficulty = aiLevel
-
-    if (availableMoves.length > 0) {
-        if(difficulty === "easy"){
-        const randomIndex = Math.floor(Math.random() * availableMoves.length);
-        const { square, index } = availableMoves[randomIndex];
-        board[square][index] = computerColor; // Coloca a peça do computador
-        document.getElementById(`cell-${square}-${index}`).style.backgroundColor = computerColor;
-
-        if (checkForMill(square, index, board, computerColor, board.length)) {
-            status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
-            removePlayerPieceAI();
-        } else {
-            togglePlayerAI(); // Alterna para o jogador humano
-            }
-        }
-        else if(difficulty === "medium" || difficulty === "hard" ){
-            for(i in availableMoves){
-                if(checkForMill(i.square,i.index,board,computerColor,board.length))
-                    status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
-                    removePlayerPieceAI();
-            }
-            const randomIndex = Math.floor(Math.random() * availableMoves.length);
-            const { square, index } = availableMoves[randomIndex];
-            board[square][index] = computerColor; // Coloca a peça do computador
-            document.getElementById(`cell-${square}-${index}`).style.backgroundColor = computerColor;
-            togglePlayerAI();
-        }
+function placePieceAI({ square, index, cell }) {
+    if (!cell) {
+        console.error("Cell element not found");
+        return;
     }
 
+    const numSquares = board.length;
+
+    // Place the computer's piece and update the cell visually
+    if (computerColor === 'red' && redPiecesPlaced < maxPieces) {
+        cell.style.backgroundColor = 'red';
+        redPiecesPlaced++;
+        retirarPeca('red', pecas_fora_red);
+        pecas_fora_red--;
+        board[square][index] = 'red';
+    } else if (computerColor === 'blue' && bluePiecesPlaced < maxPieces) {
+        cell.style.backgroundColor = 'blue';
+        bluePiecesPlaced++;
+        retirarPeca('blue', pecas_fora_blue);
+        pecas_fora_blue--;
+        board[square][index] = 'blue';
+    }
+
+    // Check if a mill was formed
+    const isMillFormed = checkForMill(square, index, board, computerColor, numSquares);
+
+    // Check if it's the final placement move
+    const isFinalPlacement = redPiecesPlaced === maxPieces && bluePiecesPlaced === maxPieces;
+
+    if (isMillFormed) {
+        waitingForRemoval = true;
+        status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
+        removePlayerPieceAI(); // Automatically remove a player piece for AI
+    } else if (isFinalPlacement) {
+        // If final placement move, start moving phase and toggle to player
+        startMovingPhase();
+        togglePlayerAI();
+    } else {
+        // Toggle to the human player after the AI's move
+        togglePlayerAI();
+    }
 }
+
+
+// Modified `makeRandomMove` to select a random move and pass it to `placePieceAI`
+function makeRandomMove() {
+    const availableMoves = availablemoves();
+    difficulty = aiLevel;
+
+    if (availableMoves.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableMoves.length);
+        const { square, index } = availableMoves[randomIndex];
+        const cell = document.getElementById(`cell-${square}-${index}`); // Get the actual DOM element
+
+        if (difficulty === "easy") {
+            placePieceAI({ square, index, cell }); // Pass the cell and indices
+        } else if (difficulty === "medium" || difficulty === "hard") {
+            for (let i of availableMoves) {
+                if (checkForMill(i.square, i.index, board, computerColor, board.length)) {
+                    status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
+                    removePlayerPieceAI();
+                }
+            }
+            placePieceAI({ square, index, cell }); // Place the computer's piece on the selected cell
+        }
+    }
+}
+
+
 
 function availablemoves(){
     const availableMoves = [];
