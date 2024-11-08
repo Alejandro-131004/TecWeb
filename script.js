@@ -777,6 +777,7 @@ function endGame(winner) {
 
     alert(resultMessage);
     const confirmQuit = confirm("Deseja jogar novamente?");
+    status.textContent = "";
     if (confirmQuit) {
         console.log("Jogo foi reiniciado");
         alert("O jogo reiniciou");
