@@ -16,7 +16,7 @@ let waitingForRemoval = false;
 let win=false;
 let pecas_fora_red;
 let pecas_fora_blue;
-
+let aiLevel ;
 
 
 /*----------------------------------------------------------------------------------COMEÇAR O JOGO----------------------------------------------------------------------------------*/
@@ -29,7 +29,7 @@ function initializeGame() {
     // Obtém as configurações do jogo a partir do HTML
     const gameMode = document.getElementById("game-mode").value;
     const firstPlayer = document.getElementById("first-player").value;
-    const aiLevel = document.getElementById("ai-level").value;
+    aiLevel = document.getElementById("ai-level").value;
 
     console.log("Modo de Jogo:", gameMode);
     console.log("Primeiro Jogador:", firstPlayer);
@@ -39,7 +39,7 @@ function initializeGame() {
     if (gameMode === "computer") {
         humanColor = firstPlayer; // O jogador humano tem a cor escolhida
         computerColor = (humanColor === "red") ? "blue" : "red"; // O computador assume a cor oposta
-        startGameWithAI(computerColor, aiLevel);
+        startGameWithAI(computerColor);
     } else {
         startGameTwoPlayers(firstPlayer);
     }
@@ -288,12 +288,20 @@ function placePiece(cell) {
             startRemoveOpponentPiece();
         }
     } else if (isFinalPlacement) {
-        togglePlayer();
+        if(gameMode === "computer"){
+            togglePlayerAI();}
+        else{
+            togglePlayer();
+        }
         // Inicia a fase de movimentação caso nenhum moinho tenha sido formado na última jogada
         startMovingPhase();
     } else {
         // Alterna o jogador caso não seja a última jogada de colocação
-        togglePlayer();
+        if(gameMode === "computer"){
+            togglePlayerAI();}
+        else{
+            togglePlayer();
+        }
     }
 }
 
@@ -310,16 +318,32 @@ function togglePlayer() {
     updatePieceCount(); 
 }
 
+function togglePlayerAI() {
+    // Alternate between 'red' (human) and 'computerColor' (AI)
+    currentPlayer = (currentPlayer === 'red') ? computerColor : 'red';
+
+    if (win === false) {
+        status.textContent = `Vez de ${currentPlayer === 'red' ? 'Jogador Humano' : 'Computador'}.`;
+    }
+
+    // If it's the computer's turn, make a random move with a slight delay
+    if (currentPlayer === computerColor) {
+        setTimeout(makeRandomMove(), 5); // Delay for natural pacing of AI's move
+    }
+
+    updatePieceCount();
+}
+
 function updatePieceCount() {
-    if (win===false){
+    if (win === false) {
         status.textContent = `
-        Vez de ${currentPlayer}. 
-        Red: ${redPiecesPlaced}/${maxPieces} peças colocadas. 
-        Blue: ${bluePiecesPlaced}/${maxPieces} peças colocadas.
+        Vez de ${currentPlayer === 'red' ? 'Jogador Humano' : 'Computador'}.
+        Red: ${redPiecesPlaced}/${maxPieces} peças colocadas.
+        ${computerColor.charAt(0).toUpperCase() + computerColor.slice(1)}: ${bluePiecesPlaced}/${maxPieces} peças colocadas.
     `;
     }
-    
 }
+
 
 function getNumberOfPieces(numSquares) {
     return 3 * numSquares * 2; // 3*n peças para cada jogador, multiplicado por 2 para dois jogadores
@@ -466,7 +490,11 @@ function removePieceIfValid(cell, possibleRemoves) {
         if(phase===2){
             checkEndGameConditions();
         }
-        togglePlayer();
+        if(gameMode === "computer"){
+            togglePlayerAI();}
+        else{
+            togglePlayer();
+        }
         return true;
     } else {
         
@@ -619,7 +647,11 @@ function handleMove(cell) {
                     console.log(`Movimentos sem formar moinho: ${movesWithoutMill}`);
                 }
 
-                togglePlayer();
+                if(gameMode === "computer"){
+                    togglePlayerAI();}
+                else{
+                    togglePlayer();
+                }
                 status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
             }
 
@@ -833,28 +865,19 @@ function startGameTwoPlayers(firstPlayer) {
 /*-------------------------------------------------------------------------------------------AI-------------------------------------------------------------------------------------------*/
 
 // Funções de exemplo para iniciar o jogo
-function startGameWithAI(firstPlayer, aiLevel) {
+function startGameWithAI(firstPlayer) {
     currentPlayer = firstPlayer;
     startGame(firstPlayer); // Configura o tabuleiro e variáveis
 
     if (currentPlayer === computerColor) {
-        makeRandomMove(aiLevel); // Computador faz a primeira jogada se for o jogador inicial
+        makeRandomMove(); // Computador faz a primeira jogada se for o jogador inicial
     }
 }
 
-function togglePlayerAI() {
-    currentPlayer = (currentPlayer === 'red') ? 'computer' : 'red';
-    status.textContent = `Vez de ${currentPlayer === 'red' ? 'Jogador Humano' : 'Computador'}`;
 
-    // Se for a vez do computador, ele faz uma jogada aleatória
-    if (currentPlayer === 'computer') {
-        setTimeout(makeRandomMove, 5); // Delay para parecer mais natural
-    }
-}
-
-function makeRandomMove(difficulty) {
+function makeRandomMove() {
     const availableMoves = availablemoves();
-    
+    difficulty = aiLevel
 
     if (availableMoves.length > 0) {
         if(difficulty === "easy"){
@@ -982,8 +1005,7 @@ const startGameButton = document.getElementById("start-game");
 
 // Variáveis de controle
 let gameMode = "player"; // Dois jogadores por padrão
-let firstPlayer = "red"; // Red inicia por padrão
-let aiLevel = "easy"; // Nível de dificuldade da IA, caso seja modo contra o computador
+let firstPlayer = "red"; // Red inicia por padrão 
 
 // Ativa ou desativa o nível de IA com base no modo selecionado
 gameModeSelect.addEventListener("change", function () {
