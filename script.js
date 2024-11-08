@@ -941,23 +941,15 @@ function makeRandomMove() {
     if (availableMove) {
         const { selectedPiece, move } = availableMove;  // Destructure the available move
         const { square, index } = move;
-            const cell = document.getElementById(`cell-${square}-${index}`);
-        // If difficulty is Medium or Hard, check for a mill before making the move
-        if (difficulty === "medium" || difficulty === "hard") {
-            
-
-            // Check if this move creates a mill
-            if (checkForMill(square, index, board, computerColor, board.length)) {
-                status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
-                removePlayerPieceAI();  // Handle the mill by removing an opponent piece
-                return;  // Exit the function after handling the mill
-            }
-        }
-
+            const cell = document.getElementById(`cell-${square}-${index}`);        
         // Perform the move
         if (phase === 1) {
-            
+            if (checkForMill(square, index, board, computerColor, board.length)) {
+                status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
+                removePlayerPieceAI();}
+            else{
             placePieceAI({ square, index, cell });  // Handle placing the piece for Phase 1
+            }
         } else {
             handleMoveAI(selectedPiece, cell);  // Handle movement for Phase 2 or 3
         }
