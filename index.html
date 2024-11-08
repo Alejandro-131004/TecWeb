@@ -8,7 +8,10 @@
 </head>
 
 <body>
-    <h1>Jogo do Moinho</h1>
+    <header>
+        <h1>Jogo do Moinho</h1>
+    </header>
+    
     <h3 id="status">Bem-vindo ao Jogo do Moinho!</h3> <!-- Subheading como subtítulo -->
     
     <!-- Área de Identificação (sem impacto no funcionamento do jogo) -->
@@ -24,8 +27,10 @@
             <button type="submit" class="login-button">Entrar</button>
         </form>
     </div>
-
+    
     <button id="quit-game" class="config-button" style="display: none;" onclick="quitGame()">Desistir do Jogo</button>
+    
+    
     
     <div id="config-area" style="display: none;">
         <!-- Opção para definir o tipo de jogo -->
@@ -58,7 +63,7 @@
         </div>
     </div>
 
-    <div id="pieceStorage" style="position: relative; width: 800px; height: 200px;"></div>
+    <div id="pieceStorage" style="position: relative; width: 1000px; height: 200px;"></div>
     
     <div id="board"></div>
     
@@ -189,7 +194,9 @@
                     No exemplo acima, ganham as peças azuis.
                 </p>
             </div>
-            
+            <div id = "footer" class="footer" >
+                <p>Tec-web-project</p>
+            </div>      
 
 
     <script src="script.js"></script>
