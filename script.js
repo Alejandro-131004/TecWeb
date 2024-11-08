@@ -946,7 +946,8 @@ function makeRandomMove() {
         if (phase === 1) {
             if (checkForMill(square, index, board, computerColor, board.length)) {
                 status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
-                removePlayerPieceAI();}
+                removePlayerPieceAI();
+                togglePlayerAI()}
             else{
             placePieceAI({ square, index, cell });  // Handle placing the piece for Phase 1
             }
@@ -1102,7 +1103,7 @@ function removePlayerPieceAI() {
         const { square, index } = playerPieces[randomIndex];
         board[square][index] = null;
         document.getElementById(`cell-${square}-${index}`).style.backgroundColor = '';
-
+        waitingForRemoval = false
         togglePlayerAI(); // Alterna para o jogador humano após remover a peça
         status.textContent = "Vez do jogador humano.";
     }
