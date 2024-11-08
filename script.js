@@ -748,19 +748,37 @@ function checkEndGameConditions() {
         console.log("peças ver:",redPieces);
         win=true;
         status.textContent = "Jogador Blue venceu!";
-        endGame();
+        endGame(1);
     } else if (bluePieces < 3) {
         console.log("peças azu:",bluePieces);
         win=true;
         status.textContent = "Jogador Red venceu!";
-        endGame();
+        endGame(2);
     }
 }
 
-function endGame() {
-    const confirmQuit = confirm("Quer reiniciar o jogo com as mesmas condições?");
+function endGame(winner) {
+    let resultMessage;
+
+    switch (winner) {
+        case 0:
+            resultMessage = "Empate!";
+            break;
+        case 1:
+            resultMessage = "Vitória do Azul!";
+            break;
+        case 2:
+            resultMessage = "Vitória do Vermelho!";
+            break;
+        default:
+            resultMessage = "Resultado indefinido.";
+            break;
+    }
+
+    alert(resultMessage);
+    const confirmQuit = confirm("Deseja jogar novamente?");
     if (confirmQuit) {
-        console.log("Jogo finalizado pelo jogador.");
+        console.log("Jogo foi reiniciado");
         alert("O jogo reiniciou");
         phase = 0; // Encerra o jogo
         const cells = boardElement.querySelectorAll('.cell');
@@ -786,7 +804,7 @@ function checkForDraw() {
     // 1. Verifica se passaram 10 movimentos sem formação de moinho
     if (movesWithoutMill ===10) {
         status.textContent = "Empate! Foram feitas 10 jogadas com 3 peças em cada jogador"
-        endGame();
+        endGame(0);
 
     // 2. Verifica se ambos os jogadores não têm jogadas válidas
     const redHasMoves = hasValidMoves('red');
@@ -794,7 +812,7 @@ function checkForDraw() {
             
     if (!redHasMoves && !blueHasMoves) {
         status.textContent = "Empate! Ambos os jogadores não têm movimentos válidos.";
-        endGame();
+        endGame(0);
         return;
     }
         
