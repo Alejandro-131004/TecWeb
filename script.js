@@ -806,20 +806,24 @@ function endGame(winner) {
     switch (winner) {
         case 0:
             resultMessage = "Empate!";
+            alert(resultMessage);
             break;
         case 1:
             resultMessage = "VitÃ³ria do Azul!";
+            alert(resultMessage);
             break;
         case 2:
             resultMessage = "VitÃ³ria do Vermelho!";
+            alert(resultMessage);
             break;
         default:
             resultMessage = "Resultado indefinido.";
+            alert(resultMessage);
             break;
     }
 
     // Display the result message
-    alert(resultMessage);
+    
     
     // Show the "quit-game" button and change its text to "Jogar Novamente"
     const quitButton = document.getElementById('quit-game');
