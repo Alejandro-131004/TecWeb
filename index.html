@@ -41,12 +41,11 @@
         </select>
         
         <!-- Escolher o primeiro jogador -->
+        <!-- Primeiro Jogador -->
         <label for="first-player">Primeiro Jogador:</label>
-        <select id="first-player">
-            <option value="red">Computador</option>
-            <option value="blue">Humano</option>
-        </select>
-        
+        <select id="first-player"></select>
+
+        <script src="script.js"></script>
         <!-- Escolher o nível de dificuldade -->
         <label for="ai-level">Nível da IA:</label>
         <select id="ai-level" disabled>
@@ -67,11 +66,37 @@
     
     <div id="board"></div>
     
-
-    <div id="commands" style="position: absolute; top: 10px; right: 10px;">
+    <div id="commands" style="position: absolute; top: 10px; right: 10px; z-index: 10;">
         <button id="instructionsBtn" onclick="openInstructions()">?</button>
-        <button id="view-scores" onclick="viewScores()">🏆</button>
+        <button id="view-scores" onclick="toggleScoresPanel()">🏆</button>
     </div>
+    
+    <!-- Área para exibir as classificações -->
+    <div id="scores-panel" style="display: none; position: absolute; top: 50px; right: 10px; background: white; padding: 10px; border: 1px solid black; z-index: 100;">
+        <!-- Botão de fechar -->
+        <button onclick="toggleScoresPanel()" style="position: absolute; top: 5px; right: 5px; background: transparent; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+        
+        <h2>Classificações</h2>
+    
+        <!-- Botões de tamanho de tabuleiro (squares) -->
+        <div id="squares-buttons">
+            <button onclick="showDifficultyButtons(2)">2 quadrados</button>
+            <button onclick="showDifficultyButtons(3)">3 quadrados</button>
+            <button onclick="showDifficultyButtons(4)">4 quadrados</button>
+            <button onclick="showDifficultyButtons(5)">5 quadrados</button>
+            <button onclick="showDifficultyButtons(6)">6 quadrados</button>
+            <button onclick="showDifficultyButtons(7)">7 quadrados</button>
+            <button onclick="showDifficultyButtons(8)">8 quadrados</button>
+            <button onclick="showDifficultyButtons(9)">9 quadrados</button>
+        </div>
+    
+        <!-- Botões de dificuldade, exibidos quando um tamanho é selecionado -->
+        <div id="difficulty-buttons" style="display: none; margin-top: 10px;"></div>
+    
+        <!-- Tabela de classificações, exibida quando uma dificuldade é selecionada -->
+        <div id="classification-table" style="display: none; margin-top: 10px;"></div>
+    </div>
+    
 
     
      <!-- Modal para as Instruções com Tópicos -->

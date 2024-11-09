@@ -203,3 +203,42 @@ body{
 .red-piece {
     background-color: red;
 }
+
+
+/* Painel de classificações */
+#scores-panel {
+    display: none; /* Oculto por padrão */
+    position: fixed;
+    top: 10%;
+    right: 10%;
+    width: 300px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* Garante que fica à frente do tabuleiro */
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Botão de fechar (X) */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #555;
+    transition: color 0.3s;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+.selected {
+    background-color: #4CAF50; /* Cor de fundo ao ser selecionado */
+    color: white; /* Cor do texto ao ser selecionado */
+}
+

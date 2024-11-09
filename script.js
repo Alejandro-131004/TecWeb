@@ -21,6 +21,50 @@ let alerta = 1;
 
 /*----------------------------------------------------------------------------------COMEÃ‡AR O JOGO----------------------------------------------------------------------------------*/
 
+
+//a funcao da botoes bem mas depois nao roda o jogo, acho que tem a haver com o nome das variáveis 
+
+function updateFirstPlayerOptions() {
+    const gameMode = document.getElementById("game-mode").value;
+    const firstPlayer = document.getElementById("first-player");
+
+    // Limpa as opções existentes
+    firstPlayer.innerHTML = "";
+
+    if (gameMode === "player") {
+        // Adiciona opções para Dois Jogadores
+        const optionRed = document.createElement("option");
+        optionRed.value = "red";
+        optionRed.textContent = "Red";
+        firstPlayer.appendChild(optionRed);
+
+        const optionBlue = document.createElement("option");
+        optionBlue.value = "blue";
+        optionBlue.textContent = "Blue";
+        firstPlayer.appendChild(optionBlue);
+    } else if (gameMode === "computer") {
+        // Adiciona opções para Contra o Computador
+        const optionComputer = document.createElement("option");
+        optionComputer.value = "computer";
+        optionComputer.textContent = "Computador";
+        firstPlayer.appendChild(optionComputer);
+
+        const optionHuman = document.createElement("option");
+        optionHuman.value = "human";
+        optionHuman.textContent = "Humano";
+        firstPlayer.appendChild(optionHuman);
+    }
+}
+
+// Adiciona um ouvinte ao seletor de modo de jogo para chamar a função quando o valor muda
+document.getElementById("game-mode").addEventListener("change", updateFirstPlayerOptions);
+
+// Chama a função uma vez para definir as opções iniciais
+document.addEventListener("DOMContentLoaded", updateFirstPlayerOptions);
+
+
+
+//este é o initializeGame normal
 function initializeGame() {
     clickSound = new sound("sound.wav");
     document.getElementById('quit-game').style.display = 'block';
@@ -51,6 +95,8 @@ function initializeGame() {
         startGameTwoPlayers(firstPlayer);
     }
 }
+
+
 
 function sound(src) {
     this.sound = document.createElement("audio");
@@ -835,6 +881,7 @@ function endGame(winner) {
         alerta = 0;
         alert(resultMessage);
     
+        incrementWins(winner); //mudei 
     
     // Show the "quit-game" button and change its text to "Jogar Novamente"
     const quitButton = document.getElementById('quit-game');
@@ -879,9 +926,140 @@ function hasValidMoves(player) {
     return false; // Nenhum movimento vÃ¡lido encontrado
 }
 
-function viewScores() {
-    alert("Visualizando as classificaÃ§Ãµes!");
+function incrementWins(winner) {
+    //atualiza o dicionário
+    let gameMode = document.getElementById("game-mode").value;
+    const firstPlayer = document.getElementById("first-player").value;
+    const aiLevel = document.getElementById("ai-level").value;
+    const numSquares = parseInt(document.getElementById("numSquares").value);
+
+    // Se o modo de jogo for "Dois Jogadores", não atualizamos o dicionário
+    if (gameMode !== "computer") return;
+
+    // Verificar quem é o vencedor e qual lado ele representa
+    let winnerType;
+    if (firstPlayer === "red") {
+        winnerType = (winner === 1) ? "computer" : "me"; // Azul = computador, Vermelho = jogador
+    } else {
+        winnerType = (winner === 1) ? "me" : "computer"; // Vermelho = computador, Azul = jogador
+    }
+
+    // Incrementar a vitória no dicionário `wins`
+    if (numSquares >= 2 && numSquares <= 9) {
+        console.log("yeahhhh +1");
+        console.log("antes",wins[winnerType][numSquares][aiLevel] );
+        wins[winnerType][numSquares][aiLevel]++;
+        console.log("antes",wins[winnerType][numSquares][aiLevel] );
+    }
 }
+
+
+
+function toggleScoresPanel() {
+    const scoresPanel = document.getElementById("scores-panel");
+    scoresPanel.style.display = scoresPanel.style.display === "none" ? "block" : "none";
+    
+    // Resetar o conteúdo dos botões de dificuldade e da tabela ao abrir
+    document.getElementById("difficulty-buttons").style.display = "none";
+    document.getElementById("classification-table").style.display = "none";
+}
+
+
+function showDifficultyButtons(squares) {
+    const difficultyButtons = document.getElementById("difficulty-buttons");
+    difficultyButtons.style.display = "block"; // Exibe o container dos botões
+    difficultyButtons.innerHTML = ""; // Limpa botões anteriores
+
+    // Remove a classe 'selected' dos botões de número de quadrados
+    Array.from(document.getElementById("squares-buttons").children).forEach(btn => btn.classList.remove("selected"));
+    
+    // Adiciona a classe 'selected' ao botão de número de quadrados selecionado
+    const squareButton = document.querySelector(`#squares-buttons button:nth-child(${squares - 1})`);
+    if (squareButton) squareButton.classList.add("selected");
+
+    // Cria os botões de dificuldade
+    const difficulties = ["easy", "medium", "hard"];
+    difficulties.forEach(difficulty => {
+        const button = document.createElement("button");
+        button.textContent = `Dificuldade: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
+
+        button.onclick = () => {
+            showClassificationTable(squares, difficulty);
+
+            // Remove a classe 'selected' dos outros botões de dificuldade
+            Array.from(difficultyButtons.children).forEach(btn => btn.classList.remove("selected"));
+
+            // Adiciona a classe 'selected' ao botão de dificuldade clicado
+            button.classList.add("selected");
+        };
+
+        difficultyButtons.appendChild(button);
+    });
+}
+
+function showClassificationTable(squares, difficulty) {
+    const classificationTable = document.getElementById("classification-table");
+    classificationTable.style.display = "block"; // Exibe a tabela
+
+    // Limpa o conteúdo anterior da tabela
+    classificationTable.innerHTML = "";
+
+    // Adiciona o título da tabela
+    const title = document.createElement("h3");
+    title.textContent = `Classificações para ${squares} quadrados - Dificuldade: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
+    classificationTable.appendChild(title);
+
+    // Cria a tabela com cabeçalhos
+    const table = document.createElement("table");
+    const headerRow = document.createElement("tr");
+    ["Minhas Vitórias", "Vitórias do Computador"].forEach(header => {
+        const headerCell = document.createElement("th");
+        headerCell.textContent = header;
+        headerRow.appendChild(headerCell);
+    });
+    table.appendChild(headerRow);
+
+    // Linha de dados com as vitórias
+    const dataRow = document.createElement("tr");
+
+    // Minhas vitórias
+    const myWinsCell = document.createElement("td");
+    myWinsCell.textContent = wins.me[squares][difficulty];
+    dataRow.appendChild(myWinsCell);
+
+    // Vitórias do computador
+    const computerWinsCell = document.createElement("td");
+    computerWinsCell.textContent = wins.computer[squares][difficulty];
+    dataRow.appendChild(computerWinsCell);
+
+    table.appendChild(dataRow);
+    classificationTable.appendChild(table);
+}
+
+
+
+let wins = {
+    me: {
+        2: { easy: 0, medium: 0, hard: 0 },
+        3: { easy: 0, medium: 0, hard: 0 },
+        4: { easy: 0, medium: 0, hard: 0 },
+        5: { easy: 0, medium: 0, hard: 0 },
+        6: { easy: 0, medium: 0, hard: 0 },
+        7: { easy: 0, medium: 0, hard: 0 },
+        8: { easy: 0, medium: 0, hard: 0 },
+        9: { easy: 0, medium: 0, hard: 0 }
+    },
+    computer: {
+        2: { easy: 0, medium: 0, hard: 0 },
+        3: { easy: 0, medium: 0, hard: 0 },
+        4: { easy: 0, medium: 0, hard: 0 },
+        5: { easy: 0, medium: 0, hard: 0 },
+        6: { easy: 0, medium: 0, hard: 0 },
+        7: { easy: 0, medium: 0, hard: 0 },
+        8: { easy: 0, medium: 0, hard: 0 },
+        9: { easy: 0, medium: 0, hard: 0 }
+    }
+};
 
 function startGameTwoPlayers(firstPlayer) {
     currentPlayer = firstPlayer; // Define o jogador inicial com base na seleÃ§Ã£o
@@ -891,6 +1069,8 @@ function startGameTwoPlayers(firstPlayer) {
 
 /*-------------------------------------------------------------------------------------------AI-------------------------------------------------------------------------------------------*/
 
+
+
 // FunÃ§Ãµes de exemplo para iniciar o jogo
 function startGameWithAI(firstPlayer) {
     currentPlayer = firstPlayer;
@@ -899,6 +1079,8 @@ function startGameWithAI(firstPlayer) {
      makeRandomMove(); // Computador faz a primeira jogada se for o jogador inicial
     }
     
+
+
 }
 function placePieceAI({ square, index, cell }) {
     if (!cell) {
