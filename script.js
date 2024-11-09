@@ -37,9 +37,16 @@ function initializeGame() {
 
     // Verifica o modo de jogo e inicializa o jogo conforme a escolha
     if (gameMode === "computer") {
-        humanColor = firstPlayer; // O jogador humano tem a cor escolhida
-        computerColor = (humanColor === "red") ? "blue" : "red"; // O computador assume a cor oposta
-        startGameWithAI(computerColor);
+        if(firstPlayer === "red"){
+            computerColor = firstPlayer; // O jogador humano tem a cor escolhida
+            humanColor = (computerColor === "red") ? "blue" : "red"; // O computador assume a cor oposta
+            startGameWithAI(computerColor);
+        }
+        else{
+            humanColor = firstPlayer; // O jogador humano tem a cor escolhida
+            computerColor = (humanColor === "red") ? "blue" : "red"; // O computador assume a cor oposta
+            startGameWithAI(humanColor);
+        }
     } else {
         startGameTwoPlayers(firstPlayer);
     }
@@ -585,6 +592,9 @@ function startMovingPhase() {
     phase = 2;
     waitingForRemoval = false; 
     status.textContent = `Fase de mover peÃ§as! Vez de ${currentPlayer}.`;
+    if(gameMode === "computer" && firstPlayer === "red"){
+        togglePlayerAI();
+    }
 }
  
 //fase 2 de mover pecas 
@@ -802,7 +812,7 @@ function checkEndGameConditions() {
 
 function endGame(winner) {
     let resultMessage;
-
+    if(alerta === 1){
     switch (winner) {
         case 0:
             resultMessage = "Empate!";
@@ -821,15 +831,16 @@ function endGame(winner) {
             
             break;
     }
-    if(alerta === 1){
+    
         alerta = 0;
         alert(resultMessage);
-    }
+    
     
     // Show the "quit-game" button and change its text to "Jogar Novamente"
     const quitButton = document.getElementById('quit-game');
     quitButton.style.display = "block";
     quitButton.textContent = "Jogar Novamente";
+ }   
 }
 
 function checkForDraw() {
@@ -884,8 +895,9 @@ function startGameTwoPlayers(firstPlayer) {
 function startGameWithAI(firstPlayer) {
     currentPlayer = firstPlayer;
     startGame(firstPlayer); // Configura o tabuleiro e variÃ¡veis
-
+    if(firstPlayer == computerColor){
      makeRandomMove(); // Computador faz a primeira jogada se for o jogador inicial
+    }
     
 }
 function placePieceAI({ square, index, cell }) {
@@ -922,9 +934,9 @@ function placePieceAI({ square, index, cell }) {
         status.textContent = "Computador formou um moinho! Removendo uma peÃ§a do jogador.";
         removePlayerPieceAI(); // Automatically remove a player piece for AI
     } else if (isFinalPlacement) {
+        //togglePlayerAI();
         // If final placement move, start moving phase and toggle to player
         startMovingPhase();
-        togglePlayerAI();
     } else {
         // Toggle to the human player after the AI's move
         togglePlayerAI();
