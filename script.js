@@ -1200,6 +1200,14 @@ function removePlayerPieceAI() {
         const { square, index } = playerPieces[randomIndex];
         board[square][index] = null;
         document.getElementById(`cell-${square}-${index}`).style.backgroundColor = '';
+        // Check the color of the piece being removed and increment the appropriate counter
+        if (humanColor === 'blue') {
+            pecas_fora_blue++;
+            reporPeca('blue', pecas_fora_blue); // Call reporPeca with updated count for blue
+        } else {
+            pecas_fora_red++;
+            reporPeca('red', pecas_fora_red); // Call reporPeca with updated count for red
+        }
         waitingForRemoval = false
         togglePlayerAI(); // Alterna para o jogador humano apÃ³s remover a peÃ§a
         status.textContent = "Vez do jogador humano.";
