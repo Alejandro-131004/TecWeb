@@ -18,6 +18,7 @@ let pecas_fora_red;
 let pecas_fora_blue;
 let aiLevel ;
 let alerta = 1;
+let isAiTurn = false;
 
 /*----------------------------------------------------------------------------------COMEÃ‡AR O JOGO----------------------------------------------------------------------------------*/
 
@@ -275,6 +276,7 @@ function reporPeca(cor, indice) {
 
 
 function handleCellClick(cell) {
+    if (isAiTurn) return;
     const [square, index] = cell.id.split('-').slice(1).map(Number);
     console.log("O valor de waitingForRemoval handle Ã©:", waitingForRemoval);
     console.log("O valor de phase handle Ã©:", phase);
@@ -1131,6 +1133,7 @@ function sleep(milliseconds) {
 
 // Modified `makeRandomMove` to select a random move with a delay
 async function makeRandomMove() {
+    isAiTurn = true;
     const availableMove = availableMoves();  // Get the next valid move
     if (availableMove) {
         const { selectedPiece, move } = availableMove;
@@ -1139,11 +1142,12 @@ async function makeRandomMove() {
 
         // Wait before performing the move to add delay
         await sleep(1000); // Delay by 1000 milliseconds (1 second)
-
+        
         if (phase === 1) {
             if (checkForMill(square, index, board, computerColor, board.length)) {
                 status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
                 removePlayerPieceAI();
+                
             } else {
                 placePieceAI({ square, index, cell });  // Handle placing the piece for Phase 1
             }
@@ -1151,6 +1155,7 @@ async function makeRandomMove() {
             handleMoveAI(selectedPiece, cell);  // Handle movement for Phase 2 or 3
         }
     }
+    isAiTurn = false;
 }
 
 
