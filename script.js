@@ -45,12 +45,12 @@ function updateFirstPlayerOptions() {
     } else if (gameMode === "computer") {
         // Adiciona opções para Contra o Computador
         const optionComputer = document.createElement("option");
-        optionComputer.value = "computer";
+        optionComputer.value = "red";
         optionComputer.textContent = "Computador";
         firstPlayer.appendChild(optionComputer);
 
         const optionHuman = document.createElement("option");
-        optionHuman.value = "human";
+        optionHuman.value = "blue";
         optionHuman.textContent = "Humano";
         firstPlayer.appendChild(optionHuman);
     }
@@ -389,7 +389,7 @@ function togglePlayerAI() {
 
     // If it's the computer's turn, make a random move with a slight delay
     if (currentPlayer === computerColor) {
-        setTimeout(makeRandomMove(), 5); // Delay for natural pacing of AI's move
+        makeRandomMove(); // Delay for natural pacing of AI's move
     }
 
     updatePieceCount();
@@ -1124,31 +1124,35 @@ function placePieceAI({ square, index, cell }) {
         togglePlayerAI();
     }
 }
+// Delay function with a Promise
+function sleep(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
 
-
-// Modified `makeRandomMove` to select a random move and pass it to `placePieceAI`
-function makeRandomMove() {
-    const availableMove = availableMoves();  // Get the next valid move (this should already return an object with selectedPiece and move)
-    difficulty = aiLevel
+// Modified `makeRandomMove` to select a random move with a delay
+async function makeRandomMove() {
+    const availableMove = availableMoves();  // Get the next valid move
     if (availableMove) {
-        const { selectedPiece, move } = availableMove;  // Destructure the available move
+        const { selectedPiece, move } = availableMove;
         const { square, index } = move;
-            const cell = document.getElementById(`cell-${square}-${index}`);        
-        // Perform the move
+        const cell = document.getElementById(`cell-${square}-${index}`);
+
+        // Wait before performing the move to add delay
+        await sleep(1000); // Delay by 1000 milliseconds (1 second)
+
         if (phase === 1) {
             if (checkForMill(square, index, board, computerColor, board.length)) {
-                status.textContent = "Computador formou um moinho! Removendo uma peÃ§a do jogador.";
+                status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
                 removePlayerPieceAI();
-                
-            }
-            else{
-            placePieceAI({ square, index, cell });  // Handle placing the piece for Phase 1
+            } else {
+                placePieceAI({ square, index, cell });  // Handle placing the piece for Phase 1
             }
         } else {
             handleMoveAI(selectedPiece, cell);  // Handle movement for Phase 2 or 3
         }
     }
 }
+
 
 function handleMoveAI(selectedPiece, cell) {
     console.log("Iniciando handleMoveAI");
@@ -1495,7 +1499,7 @@ function quitGame() {
         if (confirmRestart) {
             console.log("O jogador optou por reiniciar o jogo.");
             alert("O jogo reiniciou");
-
+            createPieceStorage(numSquares);
             document.getElementById("config-area").style.display = "block";
             quitButton.style.display = "none";
             quitButton.textContent = "Desistir do Jogo";
@@ -1510,6 +1514,7 @@ function quitGame() {
         if (confirmQuit) {
             console.log("Jogo finalizado pelo jogador.");
             alert("VocÃª desistiu do jogo.");
+            createPieceStorage(numSquares);
             document.getElementById("config-area").style.display = "block";
             quitButton.style.display = "none";
             quitButton.textContent = "Desistir do Jogo";
