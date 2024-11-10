@@ -1454,6 +1454,7 @@ function quitGame() {
             console.log("O jogador optou por reiniciar o jogo.");
             alert("O jogo reiniciou");
             createPieceStorage(numSquares);
+            gameEnded = false;
             document.getElementById("config-area").style.display = "block";
             quitButton.style.display = "none";
             quitButton.textContent = "Desistir do Jogo";
@@ -1468,6 +1469,7 @@ function quitGame() {
             console.log("Jogo finalizado pelo jogador.");
             alert("Você desistiu do jogo.");
             createPieceStorage(numSquares);
+            gameEnded = false;
             document.getElementById("config-area").style.display = "block";
             quitButton.style.display = "none";
             quitButton.textContent = "Desistir do Jogo";
