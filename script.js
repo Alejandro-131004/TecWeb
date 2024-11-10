@@ -611,7 +611,7 @@ function startMovingPhase() {
     phase = 2;
     waitingForRemoval = false; 
     status.textContent = `Fase de mover peças! Vez de ${currentPlayer}.`;
-    if(gameMode === "computer" && firstPlayer === "red"){
+    if(gameMode === "computer" && currentPlayer === "blue"){
         togglePlayerAI();
     }
 }
@@ -1100,15 +1100,13 @@ function sleep(milliseconds) {
 async function makeRandomMove() {
     if(gameEnded)return;
     isAiTurn = true;
-    const availableMove = availableMoves();  // Get the next valid move
+    // Wait before performing the move to add delay
+        await sleep(1000); // Delay by 1000 milliseconds (1 second)
+        const availableMove = availableMoves();  // Get the next valid move
     if (availableMove) {
         const { selectedPiece, move } = availableMove;
         const { square, index } = move;
         const cell = document.getElementById(`cell-${square}-${index}`);
-
-        // Wait before performing the move to add delay
-        await sleep(1000); // Delay by 1000 milliseconds (1 second)
-        
         if (phase === 1) {
             if (checkForMill(square, index, board, computerColor, board.length)) {
                 status.textContent = "Computador formou um moinho! Removendo uma peça do jogador.";
@@ -1167,7 +1165,7 @@ function handleMoveAI(selectedPiece, cell) {
             // Toggle player or switch to AI depending on game mode
             if (gameMode === "computer") {
                 togglePlayerAI(); // Switch to AI's turn
-                setTimeout(makeRandomMove, 1000000); // Make AI move after a short delay
+     
             } else {
                 togglePlayer(); // Normal player turn switching
             }
@@ -1180,6 +1178,7 @@ function handleMoveAI(selectedPiece, cell) {
         checkEndGameConditions();
     } else {
         console.warn("Movimento inválido ou nenhuma peça selecionada para a IA.");
+        togglePlayerAI();
     }
 }
 
