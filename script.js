@@ -1054,7 +1054,7 @@ function placePieceAI({ square, index, cell }) {
         console.error("Cell element not found");
         return;
     }
-
+    clickSound.play();
     const numSquares = board.length;
 
     // Place the computer's piece and update the cell visually
