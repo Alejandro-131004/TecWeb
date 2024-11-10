@@ -109,7 +109,7 @@ function startGame(firstPlayer) {
     const numSquares = parseInt(document.getElementById('numSquares').value);
     pecas_fora_red=numSquares*3-1;
     pecas_fora_blue=numSquares*3-1;
-
+    status.textContent = `Vez de ${currentPlayer}. Continue jogando!`;
 
     if (numSquares < 2) {
         status.textContent = "Número inválido. Escolha um número maior que 2.";
