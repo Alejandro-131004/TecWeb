@@ -19,6 +19,7 @@ let pecas_fora_blue;
 let aiLevel ;
 let alerta = 1;
 let isAiTurn = false;
+let gameEnded = false;
 
 /*----------------------------------------------------------------------------------COMEÇAR O JOGO----------------------------------------------------------------------------------*/
 function updateFirstPlayerOptions() {
@@ -845,6 +846,7 @@ function endGame(winner) {
     }
     
         alerta = 0;
+        gameEnded = true;
         alert(resultMessage);
     
         incrementWins(winner);  
@@ -1096,6 +1098,7 @@ function sleep(milliseconds) {
 
 // Modified `makeRandomMove` to select a random move with a delay
 async function makeRandomMove() {
+    if(gameEnded)return;
     isAiTurn = true;
     const availableMove = availableMoves();  // Get the next valid move
     if (availableMove) {
