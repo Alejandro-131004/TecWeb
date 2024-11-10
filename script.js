@@ -20,6 +20,8 @@ let aiLevel ;
 let alerta = 1;
 let isAiTurn = false;
 let gameEnded = false;
+let mewins = 0;
+let computerwins = 0;
 
 /*----------------------------------------------------------------------------------COMEÇAR O JOGO----------------------------------------------------------------------------------*/
 function updateFirstPlayerOptions() {
@@ -911,15 +913,19 @@ function incrementWins(winner) {
     if (winner === 1) {
         // Blue (human) wins
         winnerType = "me";
+        mewins +=1;
+        wins[winnerType][numSquares][aiLevel] = mewins;
     } else {
         // Red (computer) wins
         winnerType = "computer";
+        computerwins += 1;
+        wins[winnerType][numSquares][aiLevel] = computerwins;
     }
 
     // Increment the win count for the winner
-    if (numSquares >= 2 && numSquares <= 9) {
-        wins[winnerType][numSquares][aiLevel]++;
-    }
+    
+    wins[winnerType][numSquares][aiLevel] 
+    
 }
 
 
@@ -1169,6 +1175,8 @@ function handleMoveAI(selectedPiece, cell) {
 
             // Toggle player or switch to AI depending on game mode
             if (gameMode === "computer") {
+                checkForDraw();
+                checkEndGameConditions();
                 togglePlayerAI(); // Switch to AI's turn
      
             } else {
@@ -1181,9 +1189,9 @@ function handleMoveAI(selectedPiece, cell) {
         // Check for game-ending conditions
         checkForDraw();
         checkEndGameConditions();
+        
     } else {
         console.warn("Movimento inválido ou nenhuma peça selecionada para a IA.");
-        togglePlayerAI();
     }
 }
 
