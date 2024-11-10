@@ -242,3 +242,9 @@ body{
     color: white; /* Cor do texto ao ser selecionado */
 }
 
+#game-logo {
+    width: 50px; /* Ajuste o tamanho conforme necessário */
+    height: auto;
+    margin-right: 10px; /* Espaço entre o logótipo e o título */
+    vertical-align: middle; /* Alinha o logótipo com o texto */
+}
