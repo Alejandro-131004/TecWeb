@@ -1140,35 +1140,32 @@ function handleMoveAI(selectedPiece, cell) {
     if (phase !== 2 || waitingForRemoval) {
         return;
     }
-    
+
     const [square, index] = cell.id.split('-').slice(1).map(Number);
-    
-    // Validate that `selectedPiece` exists and `cell` is a valid target
-    if (selectedPiece && board[square] && board[square][index] === null) {
-        movePiece(selectedPiece, { square, index });
-        
+    const targetCell = { square, index };
+
+    // Validate that `selectedPiece` exists and `targetCell` is a valid target using isMoveValid
+    if (selectedPiece && isMoveValid(selectedPiece, targetCell, board.length, board, currentPlayer, opponentPlayer)) {
+        movePiece(selectedPiece, targetCell);
 
         // Clear the selected class from the previous piece
         document.getElementById(`cell-${selectedPiece.square}-${selectedPiece.index}`).classList.remove('selected');
-        
+
         selectedPiece = null;
 
         // Check if the move forms a mill
         if (checkForMill(square, index, board, currentPlayer, board.length)) {
-            
             if (currentPlayer === humanColor) {
                 status.textContent = `${currentPlayer} formou um moinho! Remova uma peça do adversário.`;
                 startRemoveOpponentPiece();
             } else {
                 removePlayerPieceAI();
             }
-            movesWithoutMill = 0;  // Reset the counter because a mill was formed
+            movesWithoutMill = 0; // Reset the counter because a mill was formed
         } else {
-            
             // Track moves if both players have exactly 3 pieces
             const redPieces = board.flat().filter(piece => piece === 'red').length;
             const bluePieces = board.flat().filter(piece => piece === 'blue').length;
-
 
             if (redPieces === 3 && bluePieces === 3) {
                 movesWithoutMill++;
@@ -1179,7 +1176,6 @@ function handleMoveAI(selectedPiece, cell) {
                 checkForDraw();
                 checkEndGameConditions();
                 togglePlayerAI(); // Switch to AI's turn
-     
             } else {
                 togglePlayer(); // Normal player turn switching
             }
@@ -1190,11 +1186,12 @@ function handleMoveAI(selectedPiece, cell) {
         // Check for game-ending conditions
         checkForDraw();
         checkEndGameConditions();
-        
+
     } else {
         console.warn("Movimento inválido ou nenhuma peça selecionada para a IA.");
     }
 }
+
 
 
 
@@ -1471,13 +1468,16 @@ function quitGame() {
     } else {
         // Execute a função original de "Desistir do Jogo"
         const confirmQuit = confirm("Tem certeza de que deseja desistir do jogo?");
+        const opponent = currentPlayer === 'red' ? 'blue' : 'red';
         if (confirmQuit) {
-            console.log("Jogo finalizado pelo jogador.");
-            const opponent = currentPlayer === 'red' ? 'blue' : 'red';
-            if (gameMode === "computer") {
-                endGame(2);
-            }
-            alert(`${currentPlayer} desistiu do jogo. ${opponent} venceu!`);
+                console.log("Jogo finalizado pelo jogador.");
+                if(gameMode === "player"){
+                    alert(`${currentPlayer} desistiu do jogo. ${opponent} venceu!`);
+                }
+                if (gameMode === "computer") {
+                    alert("Você desistiu do jogo!");
+                    endGame(2);
+                }
             
             createPieceStorage(numSquares);
             phase = 1;
@@ -1500,9 +1500,9 @@ function quitGame() {
             quitButton.textContent = "Desistir do Jogo";
             document.getElementById("status").innerText = "Você pode recomeçar o jogo!";
             generateBoard(numSquares);
-        }
+        
     }
-}
+}}
 
 // Função para mostrar/ocultar configurações e comandos
 function toggleConfig() {
