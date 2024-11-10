@@ -1473,10 +1473,12 @@ function quitGame() {
         const confirmQuit = confirm("Tem certeza de que deseja desistir do jogo?");
         if (confirmQuit) {
             console.log("Jogo finalizado pelo jogador.");
-            alert(`${currentPlayer} desistiu do jogo. ${opponent} venceu!`);
+            const opponent = currentPlayer === 'red' ? 'blue' : 'red';
             if (gameMode === "computer") {
                 endGame(2);
             }
+            alert(`${currentPlayer} desistiu do jogo. ${opponent} venceu!`);
+            
             createPieceStorage(numSquares);
             phase = 1;
             piecesPlaced = 0;
