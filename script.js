@@ -20,8 +20,6 @@ let aiLevel ;
 let alerta = 1;
 let isAiTurn = false;
 let gameEnded = false;
-let mewins = 0;
-let computerwins = 0;
 
 /*----------------------------------------------------------------------------------COMEÇAR O JOGO----------------------------------------------------------------------------------*/
 function updateFirstPlayerOptions() {
@@ -913,18 +911,19 @@ function incrementWins(winner) {
     if (winner === 1) {
         // Blue (human) wins
         winnerType = "me";
-        mewins +=1;
-        wins[winnerType][numSquares][aiLevel] = mewins;
     } else {
         // Red (computer) wins
         winnerType = "computer";
-        computerwins += 1;
-        wins[winnerType][numSquares][aiLevel] = computerwins;
     }
 
     // Increment the win count for the winner
+    if (numSquares >= 2 && numSquares <= 9) {
+        wins[winnerType][numSquares][aiLevel]++;
+    }
     
-    wins[winnerType][numSquares][aiLevel] 
+    
+    
+
     
 }
 
@@ -1465,6 +1464,20 @@ function quitGame() {
         if (confirmRestart) {
             console.log("O jogador optou por reiniciar o jogo.");
             alert("O jogo reiniciou");
+            phase = 1;
+            piecesPlaced = 0;
+            redPiecesPlaced = 0; // Peças colocadas pelo jogador Red
+            bluePiecesPlaced = 0; // Peças colocadas pelo jogador Blue
+            currentPlayer = 'red';
+            selectedPiece = null;
+            maxPieces = 0;
+            board = [];
+            movesWithoutMill = 0; // contador de movimentos sem moinho
+            lastMillFormedTurn = 0;
+            waitingForRemoval = false;
+            win=false;
+            alerta = 1;
+            isAiTurn = false;
             createPieceStorage(numSquares);
             gameEnded = false;
             document.getElementById("config-area").style.display = "block";
@@ -1481,6 +1494,20 @@ function quitGame() {
             console.log("Jogo finalizado pelo jogador.");
             alert("Você desistiu do jogo.");
             createPieceStorage(numSquares);
+            phase = 1;
+            piecesPlaced = 0;
+            redPiecesPlaced = 0; // Peças colocadas pelo jogador Red
+            bluePiecesPlaced = 0; // Peças colocadas pelo jogador Blue
+            currentPlayer = 'red';
+            selectedPiece = null;
+            maxPieces = 0;
+            board = [];
+            movesWithoutMill = 0; // contador de movimentos sem moinho
+            lastMillFormedTurn = 0;
+            waitingForRemoval = false;
+            win=false;
+            alerta = 1;
+            isAiTurn = false;
             gameEnded = false;
             document.getElementById("config-area").style.display = "block";
             quitButton.style.display = "none";
