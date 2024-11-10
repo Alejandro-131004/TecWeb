@@ -911,9 +911,11 @@ function incrementWins(winner) {
     if (winner === 1) {
         // Blue (human) wins
         winnerType = "me";
-    } else {
+    } else if(winner == 2){
         // Red (computer) wins
         winnerType = "computer";
+    }else{
+        return;
     }
 
     // Increment the win count for the winner
