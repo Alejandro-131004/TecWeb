@@ -848,7 +848,10 @@ function endGame(winner) {
         alert(resultMessage);
     
         incrementWins(winner);  
-    
+        const cells = document.querySelectorAll('.cell'); // Assuming cells have the class "cell"
+        cells.forEach(cell => {
+            cell.style.pointerEvents = "none"; // Disables clicking
+        });
     // Show the "quit-game" button and change its text to "Jogar Novamente"
     const quitButton = document.getElementById('quit-game');
     quitButton.style.display = "block";
