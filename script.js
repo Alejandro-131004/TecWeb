@@ -1098,7 +1098,7 @@ function sleep(milliseconds) {
 
 // Modified `makeRandomMove` to select a random move with a delay
 async function makeRandomMove() {
-    if(gameEnded)return;
+    
     isAiTurn = true;
     // Wait before performing the move to add delay
         await sleep(1000); // Delay by 1000 milliseconds (1 second)
@@ -1116,6 +1116,9 @@ async function makeRandomMove() {
                 placePieceAI({ square, index, cell });  // Handle placing the piece for Phase 1
             }
         } else {
+            if(gameEnded){
+                handleMoveAI(null,null);
+            }
             handleMoveAI(selectedPiece, cell);  // Handle movement for Phase 2 or 3
         }
     }
