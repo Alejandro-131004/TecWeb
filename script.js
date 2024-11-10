@@ -898,28 +898,30 @@ function hasValidMoves(player) {
 }
 
 function incrementWins(winner) {
-    //atualiza o dicionário
-    let gameMode = document.getElementById("game-mode").value;
-    const firstPlayer = document.getElementById("first-player").value;
+    // Get game settings from the HTML
+    const gameMode = document.getElementById("game-mode").value;
     const aiLevel = document.getElementById("ai-level").value;
     const numSquares = parseInt(document.getElementById("numSquares").value);
 
-    // Se o modo de jogo for "Dois Jogadores", não atualizamos o dicionário
+    // If the game mode is not "computer", do not update wins
     if (gameMode !== "computer") return;
 
-    // Verificar quem é o vencedor e qual lado ele representa
+    // Since the first player is always red and the human is always blue:
     let winnerType;
-    if (firstPlayer === "red") {
-        winnerType = (winner === 1) ? "computer" : "me"; // Azul = computador, Vermelho = jogador
+    if (winner === 1) {
+        // Blue (human) wins
+        winnerType = "me";
     } else {
-        winnerType = (winner === 1) ? "me" : "computer"; // Vermelho = computador, Azul = jogador
+        // Red (computer) wins
+        winnerType = "computer";
     }
 
-    // Incrementar a vitória no dicionário `wins`
+    // Increment the win count for the winner
     if (numSquares >= 2 && numSquares <= 9) {
         wins[winnerType][numSquares][aiLevel]++;
     }
 }
+
 
 
 
